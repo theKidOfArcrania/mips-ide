@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mips-ide.iml" filepath="$PROJECT_DIR$/.idea/modules/mips-ide.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mips-ide_main.iml" filepath="$PROJECT_DIR$/.idea/modules/mips-ide_main.iml" group="mips-ide" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mips-ide_test.iml" filepath="$PROJECT_DIR$/.idea/modules/mips-ide_test.iml" group="mips-ide" />
+    </modules>
+  </component>
+</project>

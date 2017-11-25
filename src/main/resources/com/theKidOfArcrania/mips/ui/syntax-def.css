@@ -1,0 +1,67 @@
+.styled-text-area {
+    -fx-background-color: #ddd;
+}
+
+.styled-text-area .paragraph-box {
+    -fx-background-color: white;
+}
+
+.tag-warning {
+    -rtfx-underline-color: yellow;
+    -rtfx-underline-width: 1;
+    -fx-fill: yellow;
+}
+
+.tag-error {
+    -rtfx-underline-color: red;
+    -rtfx-underline-width: 1;
+    -fx-fill: red;
+}
+
+.syntax-comment {
+    -fx-fill: gray;
+}
+
+.syntax-directive {
+    -fx-fill: teal;
+    -fx-font-weight: bold;
+}
+
+.syntax-identifier {
+    -fx-fill: black;
+}
+
+.syntax-instruction {
+    -fx-fill: darkblue;
+    -fx-font-weight: bold;
+}
+
+.syntax-label {
+    -fx-font-weight: bold;
+}
+
+.syntax-number {
+    -fx-fill: green;
+}
+
+.syntax-string {
+    -fx-fill: goldenrod;
+}
+
+.syntax-comma {
+    -fx-fill: darkviolet;
+}
+
+.syntax-register {
+    -fx-fill: blue;
+}
+
+.syntax-ppair {
+    -fx-fill: greenyellow;
+    -fx-font-weight: bold;
+}
+
+.syntax-pbroken {
+    -fx-fill: red;
+}
+

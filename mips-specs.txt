@@ -1,0 +1,44 @@
+Inst specs:
+------------
+
+A:
+B: R
+C: R, R
+D: R, R, R
+E: R, IMM16
+F: R, IMM32
+G: R, R, IMM16
+H: R, R, SHAMT
+I: Lbl
+J: R, Lbl
+K: R, R, Lbl
+L: R, M
+
+
+
+Insts:
+------------
+A: NOOP, SYSCALL
+B: JR, MFHI, MFLO, MTHI, MTLO
+C: DIV*, DIVU, MULT, MULTU
+D: ADD, ADDU, AND, OR, SLLV, SLT, SLTU, SRAV, SRLV, SUB, SUBU, NOR, XOR
+E: LUI
+G: ADDI, ADDIU, ANDI, ORI, SLTI, SLTIU, XORI
+H: SSL, SRA, SRL
+I: J, JAL
+J: BGEZ, BGEZAL, BGTZ, BLEZ, BLTZ, BLTZAL
+K: BEQ , BNE
+L: LB, LW, SB, SW
+
+
+
+Psuedo-insts:
+------------
+A: NOP
+B: CLEAR, JALR
+C: MOVE, NOT
+D: MUL, DIV*, REM
+F: LI
+I: B, BAL
+J: LA, BEQZ
+K: BGT, BLT, BGE, BLE, BGTU
