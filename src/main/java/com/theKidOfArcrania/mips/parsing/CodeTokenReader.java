@@ -36,7 +36,7 @@ import static java.lang.Integer.parseInt;
 public class CodeTokenReader implements Constants {
     private static final Pattern NEW_LINE = Pattern.compile("\r?\n");
     private static final Pattern INDIRECT = Pattern.compile("^(-?[0-9]+)?\\((\\$[a-zA-Z0-9]+)\\)$");
-    private static final String[] REG_ALIAS = {"$zero", "$at", "$v0", "$v1", "$a1", "$a1", "$a2", "$a3", "$t0", "$t1",
+    private static final String[] REG_ALIAS = {"$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3", "$t0", "$t1",
             "$t2", "$t3", "$t4", "$t5", "$t6", "$t7", "$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7", "$t8",
             "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"};
 
@@ -514,7 +514,7 @@ public class CodeTokenReader implements Constants {
             return false;
         } else if (ch == '#') {
             commentStartInd = colNum;
-            colNum = line.length();
+            colNum = line.length() - 1;
             return false;
         } else {
             error("Illegal character.", characterRange(lineNum, colNum));
@@ -595,10 +595,6 @@ public class CodeTokenReader implements Constants {
             tokenVal = null;
         } else {
             tokenVal = val;
-            if (val == REG_AT || val == REG_K0 || val == REG_K1) {
-                tokenError = true;
-                error("Reserved register", tokenRange(lineNum, tokenStartIndex, tokenEndIndex));
-            }
         }
     }
 

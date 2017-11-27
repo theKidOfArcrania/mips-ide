@@ -342,7 +342,7 @@ public class RangeSet<T> implements Iterable<RangeSet<T>.RangeElement> {
         RangeElement merged = eles.get(ind);
         if (merged.items.containsAll(insert.items)) {
             //No need to merge.
-            insert.from = Math.max(insert.from, merged.to);
+            insert.from = Math.min(insert.to, Math.max(insert.from, merged.to));
             return ind + 1;
         }
 

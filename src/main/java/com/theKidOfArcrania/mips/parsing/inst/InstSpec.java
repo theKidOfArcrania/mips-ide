@@ -4,7 +4,13 @@ import com.theKidOfArcrania.mips.parsing.*;
 
 import java.util.Arrays;
 
+import static com.theKidOfArcrania.mips.parsing.BasicParamType.LOCATION;
+import static com.theKidOfArcrania.mips.parsing.BasicParamType.REGISTER;
+import static com.theKidOfArcrania.mips.parsing.Range.tokenRange;
 import static com.theKidOfArcrania.mips.parsing.inst.InstFormat.*;
+import static com.theKidOfArcrania.mips.runner.Registers.REG_AT;
+import static com.theKidOfArcrania.mips.runner.Registers.REG_K0;
+import static com.theKidOfArcrania.mips.runner.Registers.REG_K1;
 
 /**
  * An instruction specification representing a list of arguments and argument types for a particular instruction
@@ -21,10 +27,10 @@ public enum InstSpec {
     SPEC_RI_32(FORMAT_I, BasicParamType.REGISTER, BasicParamType.WORD),
     SPEC_RRS(FORMAT_R, BasicParamType.REGISTER, BasicParamType.REGISTER, BasicParamType.SHAMT),
     SPEC_RRI_16(FORMAT_I, BasicParamType.REGISTER, BasicParamType.REGISTER, BasicParamType.HWORD),
-    SPEC_L(FORMAT_J, BasicParamType.LOCATION),
-    SPEC_RL(FORMAT_I, BasicParamType.REGISTER, BasicParamType.LOCATION),
-    SPEC_RRL(FORMAT_I, BasicParamType.REGISTER, BasicParamType.REGISTER, BasicParamType.LOCATION),
-    SPEC_RM(FORMAT_I, BasicParamType.REGISTER, new MultipleParamType(BasicParamType.LOCATION, BasicParamType.INDIRECT)),
+    SPEC_L(FORMAT_J, LOCATION),
+    SPEC_RL(FORMAT_I, BasicParamType.REGISTER, LOCATION),
+    SPEC_RRL(FORMAT_I, BasicParamType.REGISTER, BasicParamType.REGISTER, LOCATION),
+    SPEC_RM(FORMAT_I, BasicParamType.REGISTER, new MultipleParamType(LOCATION, BasicParamType.INDIRECT)),
     //Special specs for div (instruction overload)
     SPEC_DIV(FORMAT_R, BasicParamType.REGISTER, BasicParamType.REGISTER /*[, REGISTER]*/) {
         @Override
@@ -102,8 +108,9 @@ public enum InstSpec {
      */
     public boolean verifySymbol(ErrorLogger logger, InstStatement inst, CodeSymbols resolved) {
         for (int i = 0; i < inst.getArgSize(); i++) {
+            ParamType type = inst.getArgExactType(i);
             Object val = inst.getArgValue(i);
-            if (val instanceof String) {
+            if (type == LOCATION) {
                 int addr = resolved.resolveLabel((String)val);
                 if (addr == -1) {
                     logger.logError("Unresolved symbol.", inst.getArg(i).getTokenPos());
@@ -116,12 +123,17 @@ public enum InstSpec {
                         logger.logError("Imprecise jump. (Jump too far).", inst.getArg(i).getTokenPos());
                         return false;
                     }
-                } else {
+                } else if (inst.getOpcode() != InstOpcodes.LA){
                     int offset = (addr - instAddr) >> 2;
                     if (offset != (short) offset) {
                         logger.logError("Branch offset too big.", inst.getArg(i).getTokenPos());
                         return false;
                     }
+                }
+            } else if (type == REGISTER) {
+                int reg = (Integer)val;
+                if (reg == REG_AT || reg == REG_K0 || reg == REG_K1) {
+                    logger.logWarning("Reserved register", inst.getArg(i).getTokenPos());
                 }
             }
         }

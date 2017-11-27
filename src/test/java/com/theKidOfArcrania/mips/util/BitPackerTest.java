@@ -37,6 +37,12 @@ public class BitPackerTest {
     }
 
     @Test
+    public void set4() throws Exception {
+        bits.set(11, 14, 0b01101001101101);
+        assertArrayEquals(new byte[] {0, 0b00001101, 0b00110110, (byte)0b10000000}, bits.toBytes());
+    }
+
+    @Test
     public void get1() throws Exception {
         bits.setDWORD(0, 0b10101010101010101010101010101010);
         assertEquals(0b01010101, bits.get(3, 8));
@@ -46,5 +52,10 @@ public class BitPackerTest {
     public void get2() throws Exception {
         bits.setDWORD(0, 0b10101010101010101010101010101010);
         assertEquals(0b0101010101010101, bits.get(3, 16));
+    }
+    @Test
+    public void get3() throws Exception {
+        bits.setDWORD(0, 0b11010011010011011011010010010010);
+        assertEquals(0b01101001101101, bits.get(5, 14));
     }
 }

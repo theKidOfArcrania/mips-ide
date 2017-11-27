@@ -2,7 +2,7 @@ package com.theKidOfArcrania.mips.util;
 
 /**
  * Manages a set of bits, allowing for easier bit manipulation with bit offsets that might not be aligned to byte
- * boundaries.
+ * boundaries. The 0th bit within a byte is defined as the MSB of the number.
  * @author Henry Wang
  */
 public class BitPacker {
@@ -44,9 +44,10 @@ public class BitPacker {
             int count = Math.min(length, BYTE_BITS - bitStart);
             int bitEnd = bitStart + count;
 
-            int val = value >>> (length + count) & MASKS[count];
+            int val = value >>> (length - count) & MASKS[count];
             int tmp = bits[offset / BYTE_BITS];
-            tmp = (tmp & ~MASKS[bitStart]) | val << (BYTE_BITS - bitEnd) | (tmp & MASKS[BYTE_BITS - bitEnd]);
+            tmp = (tmp & ~MASKS[BYTE_BITS - bitStart]) | val << (BYTE_BITS - bitEnd) |
+                    (tmp & MASKS[BYTE_BITS - bitEnd]);
             bits[offset / BYTE_BITS] = (byte)tmp;
 
             length -= count;
@@ -67,14 +68,13 @@ public class BitPacker {
         checkBounds(offset, length);
 
         int ret = 0;
-        int retLen = 0;
         while (length > 0) {
             int bitStart = offset % BYTE_BITS;
             int count = Math.min(length, BYTE_BITS - bitStart);
             int bitEnd = bitStart + count;
 
             int val = (bits[offset / BYTE_BITS] >>> (BYTE_BITS - bitEnd)) & MASKS[count];
-            ret |= val << retLen;
+            ret |= val << (length - count);
 
             length -= count;
             offset += count;
