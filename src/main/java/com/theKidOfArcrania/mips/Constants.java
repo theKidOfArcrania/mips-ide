@@ -9,7 +9,6 @@ public interface Constants {
     int MAX_SHIFT = 32;
     int REGISTER_COUNT = 32;
     int INST_SIZE = 4;
-    int INST_ADDR_BITS = 26;
 
     int SEG_TEXT = 0;
     int SEG_DATA = 1;

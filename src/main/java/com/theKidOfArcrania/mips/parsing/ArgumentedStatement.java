@@ -3,8 +3,6 @@ package com.theKidOfArcrania.mips.parsing;
 
 import java.util.Iterator;
 
-import static com.theKidOfArcrania.mips.parsing.Range.lineRange;
-
 /**
  * Represents any code statements that consists of a list of arguments.
  *
@@ -13,7 +11,7 @@ import static com.theKidOfArcrania.mips.parsing.Range.lineRange;
 public abstract class ArgumentedStatement extends CodeStatement implements Iterable<Argument> {
     protected final CodeTokenReader reader;
     private final Argument[] args;
-    private final Range lineRange;
+    private Range lineRange;
 
     /**
      * Creates a new argumented statement.
@@ -42,6 +40,17 @@ public abstract class ArgumentedStatement extends CodeStatement implements Itera
                 return args[index++];
             }
         };
+    }
+
+    @Override
+    public void updateLinePos(int line) {
+        int shift = line - lineRange.getStart().getLineNumber();
+        if (shift != 0) {
+            lineRange = lineRange.shiftLines(shift);
+            for (Argument a : args) {
+                a.shiftLines(shift);
+            }
+        }
     }
 
     public Argument[] getArgs() {

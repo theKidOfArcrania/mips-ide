@@ -34,7 +34,7 @@ public class LabelStatement extends CodeStatement {
 
     private final CodeTokenReader reader;
     private final String name;
-    private final Range tokenPos;
+    private Range tokenPos;
 
     /**
      * Constructs a new label from the name and the associated token reader.
@@ -47,6 +47,14 @@ public class LabelStatement extends CodeStatement {
         this.reader = reader;
         this.name = name;
         this.tokenPos = tokenPos;
+    }
+
+    @Override
+    public void updateLinePos(int line) {
+        int shift = line - tokenPos.getStart().getLineNumber();
+        if (shift != 0) {
+            tokenPos = tokenPos.shiftLines(shift);
+        }
     }
 
     @Override

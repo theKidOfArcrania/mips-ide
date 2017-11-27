@@ -4,7 +4,6 @@ import com.theKidOfArcrania.mips.parsing.CodeSymbols;
 import com.theKidOfArcrania.mips.parsing.ErrorLogger;
 
 import static com.theKidOfArcrania.mips.Constants.*;
-import static com.theKidOfArcrania.mips.parsing.BasicParamType.STRING;
 import static com.theKidOfArcrania.mips.parsing.directive.DirTypes.addDirective;
 
 

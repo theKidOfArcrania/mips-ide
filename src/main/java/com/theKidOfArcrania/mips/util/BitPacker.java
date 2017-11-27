@@ -61,7 +61,7 @@ public class BitPacker {
      * @return the fetched bits in MSB format.
      */
     public int get(int offset, int length) {
-        if (length > 32) {
+        if (length > Integer.SIZE) {
             throw new IllegalArgumentException("Maximum length is 32 bits");
         }
         checkBounds(offset, length);

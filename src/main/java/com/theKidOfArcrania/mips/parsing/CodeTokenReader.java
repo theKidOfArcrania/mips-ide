@@ -513,9 +513,9 @@ public class CodeTokenReader implements Constants {
         } else if (isWhitespace(ch)) {
             return false;
         } else if (ch == '#') {
-            tokenStartIndex = -1;
-            tokenEndIndex = -1;
             commentStartInd = colNum;
+            colNum = line.length();
+            return false;
         } else {
             error("Illegal character.", characterRange(lineNum, colNum));
             tokenError = true;
@@ -544,6 +544,11 @@ public class CodeTokenReader implements Constants {
                 break;
             }
             colNum++;
+        }
+
+        //If we read past just token errors we need to make sure that we marked as such an error
+        if (tokenError && tokenStartIndex == -1) {
+            tokenStartIndex = line.length() - 1;
         }
 
         if (tokenStartIndex != -1) {

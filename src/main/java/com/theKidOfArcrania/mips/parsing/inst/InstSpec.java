@@ -13,7 +13,7 @@ import static com.theKidOfArcrania.mips.parsing.inst.InstFormat.*;
  * @author Henry Wang
  */
 public enum InstSpec {
-    SPEC_NOARG(FORMAT_R),
+    SPEC_NO_ARG(FORMAT_R),
     SPEC_R(FORMAT_R, BasicParamType.REGISTER),
     SPEC_RR(FORMAT_R, BasicParamType.REGISTER, BasicParamType.REGISTER),
     SPEC_RRR(FORMAT_R, BasicParamType.REGISTER, BasicParamType.REGISTER, BasicParamType.REGISTER),

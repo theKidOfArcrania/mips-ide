@@ -8,7 +8,7 @@ import java.util.HashMap;
  * @author Henry Wang
  */
 public final class DirTypes {
-    private static HashMap<String, DirType> dirs;
+    private static final HashMap<String, DirType> dirs;
 
     static {
         dirs = new HashMap<>();

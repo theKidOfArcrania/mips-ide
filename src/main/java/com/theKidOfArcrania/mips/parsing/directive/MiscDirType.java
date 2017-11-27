@@ -24,7 +24,7 @@ public abstract class MiscDirType extends DirType {
      * Initializes all the directives
      */
     static void init() {
-        addDirective("align", new MiscDirType(SEG_DATA, false, SHAMT) {
+        addDirective("align", new MiscDirType(SEG_DATA, SHAMT) {
             @Override
             public boolean resolveSymbols(ErrorLogger logger, DirStatement dir, CodeSymbols symbols) {
                 if (!super.resolveSymbols(logger, dir, symbols)) {
@@ -34,7 +34,7 @@ public abstract class MiscDirType extends DirType {
                 return true;
             }
         });
-        addDirective("extern", new MiscDirType(-1, false, LOCATION, SIZE) {
+        addDirective("extern", new MiscDirType(-1, LOCATION, SIZE) {
             @Override
             public boolean resolveSymbols(ErrorLogger logger, DirStatement dir, CodeSymbols symbols) {
                 if (!super.resolveSymbols(logger, dir, symbols)) {
@@ -44,7 +44,7 @@ public abstract class MiscDirType extends DirType {
                 return true;
             }
         });
-        addDirective("globl", new MiscDirType(-1, false, LOCATION) {
+        addDirective("globl", new MiscDirType(-1, LOCATION) {
             @Override
             public boolean resolveSymbols(ErrorLogger logger, DirStatement dir, CodeSymbols symbols) {
                 if (!super.resolveSymbols(logger, dir, symbols)) {
@@ -67,7 +67,7 @@ public abstract class MiscDirType extends DirType {
                 return true;
             }
         });
-        addDirective("space", new MiscDirType(SEG_DATA, false, SIZE) {
+        addDirective("space", new MiscDirType(SEG_DATA, SIZE) {
             @Override
             public boolean resolveSymbols(ErrorLogger logger, DirStatement dir, CodeSymbols symbols) {
                 if (!super.resolveSymbols(logger, dir, symbols)) {
@@ -97,10 +97,9 @@ public abstract class MiscDirType extends DirType {
     /**
      * Constructs a miscellaneous directive type.
      * @param expectedSegment the expected section that this directive type should be in
-     * @param paramArray true if multiple of the last parameter value can be passed.
      * @param params the parameter types with this directive
      */
-    private MiscDirType(int expectedSegment, boolean paramArray, ParamType... params) {
-        super(expectedSegment, paramArray, params);
+    private MiscDirType(int expectedSegment, ParamType... params) {
+        super(expectedSegment, false, params);
     }
 }

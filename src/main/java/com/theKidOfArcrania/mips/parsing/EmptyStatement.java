@@ -8,6 +8,11 @@ package com.theKidOfArcrania.mips.parsing;
  */
 public class EmptyStatement extends CodeStatement {
     @Override
+    public void updateLinePos(int line) {
+        //Does nothing
+    }
+
+    @Override
     public boolean resolveSymbols(CodeSymbols symbols) {
         return true;
     }

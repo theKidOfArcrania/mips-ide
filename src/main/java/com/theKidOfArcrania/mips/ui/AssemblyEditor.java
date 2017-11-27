@@ -6,6 +6,7 @@ import com.theKidOfArcrania.mips.parsing.Position;
 import com.theKidOfArcrania.mips.parsing.Range;
 import com.theKidOfArcrania.mips.util.RangeSet;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
@@ -26,7 +27,8 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Supplier;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.theKidOfArcrania.mips.parsing.Range.characterRange;
@@ -98,7 +100,8 @@ public class AssemblyEditor extends StackPane {
         }
 
         public void setCursorPos(Position cursorPos) {
-            lines.get(this.cursorPos.getLineNumber() - 1).modified = true;
+            if (this.cursorPos.getLineNumber() < lines.size())
+                lines.get(this.cursorPos.getLineNumber() - 1).modified = true;
             lines.get(cursorPos.getLineNumber() - 1).modified = true;
             this.cursorPos = cursorPos;
         }
@@ -111,7 +114,7 @@ public class AssemblyEditor extends StackPane {
          * @param to      the ending range
          * @param style   the marker object to add.
          */
-        public void addMarker(int lineNum, int from, int to, HighlightMark<?> style) {
+        public synchronized void addMarker(int lineNum, int from, int to, HighlightMark<?> style) {
             LineStyle line = lines.get(lineNum - 1);
             int guard = line.guard;
 
@@ -141,10 +144,12 @@ public class AssemblyEditor extends StackPane {
                 return new HashSet<>();
             }
             if (colNum == -1) {
-                HashSet<HighlightMark<?>> markers = new HashSet<>();
-                for (RangeSet<HighlightMark<?>>.RangeElement e : lines.get(lineNum - 1).markers)
-                    markers.addAll(e.getItems());
-                return markers;
+                synchronized (this) {
+                    HashSet<HighlightMark<?>> markers = new HashSet<>();
+                    for (RangeSet<HighlightMark<?>>.RangeElement e : lines.get(lineNum - 1).markers)
+                        markers.addAll(e.getItems());
+                    return markers;
+                }
             }
             return lines.get(lineNum - 1).markers.get(colNum);
         }
@@ -154,7 +159,7 @@ public class AssemblyEditor extends StackPane {
          *
          * @param lineNum the line number
          */
-        public void clearStyles(int lineNum) {
+        public synchronized void clearStyles(int lineNum) {
             LineStyle line = lines.get(lineNum - 1);
             line.markers.clear();
             line.modified = true;
@@ -165,10 +170,11 @@ public class AssemblyEditor extends StackPane {
          *
          * @param lineNum the line number
          */
-        public void clearTags(int lineNum) {
+        public synchronized void clearTags(int lineNum) {
             LineStyle line = lines.get(lineNum - 1);
-            line.markers.removeIf(mark -> mark.getType() instanceof TagType);
-            line.modified = true;
+            if (line.markers.removeIf(mark -> mark.getType() instanceof TagType)) {
+                line.modified = true;
+            }
         }
 
         /**
@@ -187,7 +193,7 @@ public class AssemblyEditor extends StackPane {
          * @param lineNum the line number to set
          * @param length  the length of the line
          */
-        public void guardLine(int lineNum, int length) {
+        public synchronized void guardLine(int lineNum, int length) {
             LineStyle line = lines.get(lineNum - 1);
             line.guard = length;
             line.markers.retainRange(0, length);
@@ -208,7 +214,7 @@ public class AssemblyEditor extends StackPane {
          * @param lineNum    the line number
          * @param markerType the marker type to remove
          */
-        public void removeMarker(int lineNum, Enum<?> markerType) {
+        public synchronized void removeMarker(int lineNum, Enum<?> markerType) {
             LineStyle line = lines.get(lineNum - 1);
             if (line.markers.removeIf(h -> h.getType().equals(markerType))) {
                 line.modified = true;
@@ -219,30 +225,35 @@ public class AssemblyEditor extends StackPane {
          * Applies all pending marker styles to the code area.
          */
         public void applyStyles() {
+            if (!Platform.isFxApplicationThread()) {
+                throw new IllegalStateException("Not in application FX thread");
+            }
+
             //Compute real-time line offsets.
-            String[] rawLines = codeArea.getText().split("\n");
             int off = 0;
-            for (int i = 0; i < rawLines.length; i++) {
-                int length = rawLines[i].length();
+            for (int i = 0; i < lines.size(); i++) {
+                int length = parser.getLine(i + 1).length();
                 LineStyle line = lines.get(i);
 
                 if (length < line.guard) {
                     guardLine(i + 1, length);
                 }
 
-                RangeSet<HighlightMark<?>> markers = line.markers;
+                RangeSet<HighlightMark<?>> markers;
+                synchronized(this) {
+                    markers = new RangeSet<>(line.markers);
+                }
+
                 if (line.modified && line.guard > 0) {
                     line.modified = false;
-                    RangeSet<HighlightMark<?>> tmp = markers;
                     if (cursorPos.getLineNumber() - 1 == i) {
-                        tmp = new RangeSet<>(tmp);
-                        findPair(i + 1, cursorPos.getColumnNumber() - 1, tmp);
-                        findPair(i + 1, cursorPos.getColumnNumber(), tmp);
+                        findPair(i + 1, cursorPos.getColumnNumber() - 1, ')', markers);
+                        findPair(i + 1, cursorPos.getColumnNumber(), '(', markers);
                     }
 
                     int last = 0;
                     StyleSpansBuilder<Collection<String>> ssb = new StyleSpansBuilder<>();
-                    for (RangeSet<HighlightMark<?>>.RangeElement ele : tmp) {
+                    for (RangeSet<HighlightMark<?>>.RangeElement ele : markers) {
                         if (last < ele.getFrom()) {
                             ssb.add(Collections.emptyList(), ele.getFrom() - last);
                         }
@@ -257,16 +268,24 @@ public class AssemblyEditor extends StackPane {
                     }
                     codeArea.setStyleSpans(off, ssb.create());
                 }
-                off += rawLines[i].length() + 1;
+                off += parser.getLine(i + 1).length() + 1;
             }
         }
 
-        private void findPair(int lineNum, int ind, RangeSet<HighlightMark<?>> tmp) {
+        /**
+         * Finds the corresponding pair of parenthesis starting at the specified index, and adds the appropriate
+         * color styling to the range set
+         * @param lineNum the line number to start from
+         * @param ind     the column index to start from
+         * @param search  the character, either close or open parenthesis to match.
+         * @param styles  the range set of styles
+         */
+        private void findPair(int lineNum, int ind, char search, RangeSet<HighlightMark<?>> styles) {
             String line = parser.getLine(lineNum);
             if (ind >= 0 && ind < line.length()) {
                 int depth = 0;
                 char ch = line.charAt(ind);
-                if (ch != '(' && ch != ')')
+                if (ch != search)
                     return;
 
                 int i = ind;
@@ -281,38 +300,30 @@ public class AssemblyEditor extends StackPane {
                 } while (i >= 0 && i < line.length());
 
                 if (depth == 0) {
-                    tmp.add(ind, ind + 1, new Syntax(SyntaxType.PPAIR, characterRange(lineNum, ind)));
-                    tmp.add(i, i + 1, new Syntax(SyntaxType.PPAIR, characterRange(lineNum, i)));
+                    styles.add(ind, ind + 1, new Syntax(SyntaxType.PPAIR, characterRange(lineNum, ind)));
+                    styles.add(i, i + 1, new Syntax(SyntaxType.PPAIR, characterRange(lineNum, i)));
                 } else {
-                    tmp.add(ind, ind + 1, new Syntax(SyntaxType.PBROKEN, characterRange(lineNum, ind)));
+                    styles.add(ind, ind + 1, new Syntax(SyntaxType.PBROKEN, characterRange(lineNum, ind)));
                 }
             }
         }
     }
 
-
-    /**
-     * Combines multiple edits together into an arraylist, squashing any changes if able.
-     *
-     * @param list the list of changes
-     * @param ptc  the new change to add.
-     * @return the original list of changes
-     */
-    private static ArrayList<PlainTextChange> combineEdits(ArrayList<PlainTextChange> list, PlainTextChange ptc) {
-        if (!list.isEmpty()) {
-            int last = list.size() - 1;
-            Optional<PlainTextChange> merge = list.get(last).mergeWith(ptc);
-            if (merge.isPresent()) {
-                list.remove(last);
-                ptc = merge.get();
-            }
-        }
-        list.add(ptc);
-        return list;
-    }
-
+    private static final Duration MOUSE_OVER_DELAY = ofMillis(200);
     private static final Duration PARSE_DELAY = ofMillis(300);
     private static final int MOVE_TOOLTIP_RANGE = 10;
+
+    /**
+     * Helper method that chains a parameter object with an action
+     * @param param   the parameter to chain
+     * @param running the function to run with this object
+     * @param <P>     the parameter object type
+     * @return the parameter itself
+     */
+    private static <P> P chain(P param, Consumer<P> running) {
+        running.accept(param);
+        return param;
+    }
 
     private final List<Tag> highlightTags;
     private final List<Syntax> highlightSyntaxes;
@@ -322,9 +333,9 @@ public class AssemblyEditor extends StackPane {
     private final CodeParser parser;
     private final CodeArea codeArea;
     private final Tooltip tagMsg;
-    private final ExecutorService executor;
 
     private int moveCount = 10;
+
 
     /**
      * Constructs a new method editor object.
@@ -339,7 +350,7 @@ public class AssemblyEditor extends StackPane {
         highlightTags = new ArrayList<>();
         styles = new LineStyles();
 
-        executor = Executors.newFixedThreadPool(1, r -> {
+        ExecutorService executor = Executors.newFixedThreadPool(1, r -> {
             Thread t = Executors.defaultThreadFactory().newThread(r);
             t.setDaemon(true);
             return t;
@@ -366,21 +377,14 @@ public class AssemblyEditor extends StackPane {
         //tagMsg.getStyleClass().add("tag-label");
 
         codeArea = new CodeArea();
+        codeArea.setUseInitialStyleForInsertion(false);
         codeArea.plainTextChanges()
                 .filter(ch -> !ch.getInserted().equals(ch.getRemoved()))
-                .reduceSuccessions((Supplier<ArrayList<PlainTextChange>>) ArrayList::new,
-                        AssemblyEditor::combineEdits, PARSE_DELAY)
-                .mapToTask(this::computeChanges)
-                .awaitLatest(codeArea.richChanges())
-                .filterMap(t -> {
-                    if (t.isSuccess()) {
-                        return Optional.of(styles);
-                    } else {
-                        t.getFailure().printStackTrace();
-                        return Optional.empty();
-                    }
-                })
-                .subscribe(LineStyles::applyStyles);
+                .map(this::computeChanges)
+                .reduceSuccessions((a, b) -> b, PARSE_DELAY)
+                .mapToTask(t -> chain(t, executor::execute))
+                .await()
+                .subscribe(res -> res.ifFailure(Throwable::printStackTrace));
         codeArea.caretPositionProperty().addListener(val -> {
             int pos = codeArea.getCaretPosition();
             int line = searchLine(pos);
@@ -389,8 +393,7 @@ public class AssemblyEditor extends StackPane {
             styles.applyStyles();
         });
         codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea)); //TODO: line number factory + tag id.
-
-        codeArea.setMouseOverTextDelay(ofMillis(200));
+        codeArea.setMouseOverTextDelay(MOUSE_OVER_DELAY);
         codeArea.addEventHandler(MOUSE_OVER_TEXT_BEGIN, e -> {
             int chIdx = e.getCharacterIndex();
             Point2D pos = e.getScreenPosition();
@@ -450,34 +453,23 @@ public class AssemblyEditor extends StackPane {
     }
 
     /**
-     * Computes all the changes that has been made to this editor and re-parses the appropriate lines. This will
-     * queue the actual computation for a later time and will return this task's status.
-     *
-     * @param changes the changes that has been made to the editor to be processed.
-     * @return the pending computing task.
-     */
-    private Task<Void> computeChanges(List<PlainTextChange> changes) {
-
-        Task<Void> task = new Task<Void>() {
-            @Override
-            protected Void call() throws Exception {
-                highlightSyntaxes.clear();
-                highlightTags.clear();
-                updateChanges(changes);
-                processLineStyles();
-                return null;
-            }
-        };
-        executor.execute(task);
-        return task;
-    }
-
-    /**
      * This processes the resulting line styles (syntax highlighting and tags) that have been emitted by our code
-     * parser into our line styles object.
+     * parser into our line styles object. Note: THIS METHOD IS NOT THREAD-SAFE, AND THE CALLER METHOD SHOULD ALREADY
+     * MAKE SYNCHRONIZED LOCKS
+     * @param cancelled the atomic boolean prop to check if task is cancelled
      */
     @SuppressWarnings("unchecked")
-    private void processLineStyles() {
+    private void processLineStyles(AtomicBoolean cancelled) {
+        if (cancelled.get())
+            return;
+
+        highlightSyntaxes.clear();
+        highlightTags.clear();
+        if (parser.reparse(false, cancelled))
+            parser.resolveSymbols(cancelled);
+
+        if (cancelled.get())
+            return;
 
         List<HighlightMark> markList = new ArrayList<>(highlightSyntaxes);
         markList.addAll(highlightTags);
@@ -490,6 +482,9 @@ public class AssemblyEditor extends StackPane {
             offsets[i] = ind;
             ind += lines[i].length() + 1;
         }
+
+        if (cancelled.get())
+            return;
 
         //Compute all the highlighting
         for (int i = 0; i < lines.length; i++)
@@ -514,24 +509,25 @@ public class AssemblyEditor extends StackPane {
     }
 
     /**
-     * Updates all the changes listed, re-parses the affected lines, and reanalyzes the code for symbolic errors.
+     * Recomputes with the change listed, re-parses the affected lines, and reanalyzes the code for symbolic errors.
      *
-     * @param changes the text changes made to the code.
+     * @param change the change that occurred
+     * @return the pending computing task.
      */
-    private void updateChanges(List<PlainTextChange> changes) {
-        for (PlainTextChange change : changes) {
-            if (!change.getRemoved().isEmpty()) {
-                removeRange(change.getRemoved(), change.getPosition());
-            }
-            if (!change.getInserted().isEmpty()) {
-                insertRange(change.getInserted(), change.getPosition());
-            }
+    private synchronized Task<Void> computeChanges(PlainTextChange change) {
+        //Update change
+        if (!change.getRemoved().isEmpty()) {
+            removeRange(change.getRemoved(), change.getPosition());
+        }
+        if (!change.getInserted().isEmpty()) {
+            insertRange(change.getInserted(), change.getPosition());
         }
 
+        //Remove styles for the dirty lines
         for (int i = 1; i <= parser.getLineCount(); i++) {
             if (parser.isLineDirty(i)) {
                 styles.clearStyles(i);
-            } else {
+            } else if (!parser.isLineMalformed(i)) {
                 styles.clearTags(i);
             }
         }
@@ -541,8 +537,26 @@ public class AssemblyEditor extends StackPane {
 //            System.out.println(parser.getLine(i + 1));
 //        System.out.println("---");
 
-        if (parser.reparse(false))
-            parser.resolveSymbols();
+        //Execute parsing as a separate task
+        AtomicBoolean cancelled = new AtomicBoolean(false);
+        return new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                codeArea.plainTextChanges().subscribeForOne(chg -> this.cancel());
+                synchronized (AssemblyEditor.this) {
+                    processLineStyles(cancelled);
+                    if (!isCancelled()) {
+                        Platform.runLater(styles::applyStyles);
+                    }
+                    return null;
+                }
+            }
+
+            @Override
+            protected void cancelled() {
+                cancelled.set(true);
+            }
+        };
     }
 
     /**

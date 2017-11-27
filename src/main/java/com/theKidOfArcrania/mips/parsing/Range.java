@@ -1,6 +1,5 @@
 package com.theKidOfArcrania.mips.parsing;
 
-//TODO: update line numbers whenever lines get moved up or down.
 /**
  * Represents a range of positions within a body of code.
  *
@@ -114,6 +113,15 @@ public class Range implements Comparable<Range> {
         } else {
             return start.compareTo(o.start);
         }
+    }
+
+    /**
+     * Creates a copy of this range shifted by a number of lines
+     * @param count the number of lines to increment by, if this is negative, this will decrement line count.
+     * @return a new range with the shifted lines
+     */
+    public Range shiftLines(int count) {
+        return new Range(start.shiftLines(count), end.shiftLines(count));
     }
 
     public Position getStart() {

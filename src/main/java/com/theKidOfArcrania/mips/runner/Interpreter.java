@@ -17,14 +17,14 @@ import static java.lang.Short.toUnsignedInt;
  * @author Henry Wang
  */
 public class Interpreter implements Constants, Registers {
-    private BitPacker current;
-    private MemState state;
+    private final BitPacker current;
+    private final MemState state;
 
     private int addrDataTail;
     private int addrTextTail;
 
-    private InputStream in;
-    private PrintStream out;
+    private final InputStream in;
+    private final PrintStream out;
 
     /**
      * Creates a new interpreter with the default memory segments loaded.
@@ -45,6 +45,8 @@ public class Interpreter implements Constants, Registers {
 
         state.setRegister(REG_GP, ADDR_GLOBL);
         state.setRegister(REG_SP, ADDR_STACK);
+
+        state.pc(ADDR_TEXT);
     }
 
     /**
@@ -400,15 +402,30 @@ public class Interpreter implements Constants, Registers {
         }
     }
 
-    int reg(int regind) {
+    /**
+     * Utility method to query a register
+     * @param regind the register index
+     * @return the register value
+     */
+    private int reg(int regind) {
         return state.getRegister(regind);
     }
 
-    long regU(int regind) {
+    /**
+     * Utility method to query a register in an unsigned integer fom
+     * @param regind the register index
+     * @return the register value as an unsigned integer (returned as a long)
+     */
+    private long regU(int regind) {
         return toUnsignedLong(state.getRegister(regind));
     }
 
-    void reg(int regind, int val) {
+    /**
+     * Utility method to set a register value
+     * @param regind the register index
+     * @param val the value to set
+     */
+    private void reg(int regind, int val) {
         state.setRegister(regind, val);
     }
 }

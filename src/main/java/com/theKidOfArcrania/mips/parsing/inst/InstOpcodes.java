@@ -105,8 +105,8 @@ public enum InstOpcodes {
     //**********************
     //* Operating System
     //**********************
-    SYSCALL(InstSpec.SPEC_NOARG, 0xc),
-    BREAK(InstSpec.SPEC_NOARG, 0xd),
+    SYSCALL(InstSpec.SPEC_NO_ARG, 0xc),
+    BREAK(InstSpec.SPEC_NO_ARG, 0xd),
 
     //**********************
     //* Psuedo-instructions
@@ -125,7 +125,7 @@ public enum InstOpcodes {
     MOVE(InstSpec.SPEC_RR, -1),
     MUL(InstSpec.SPEC_RRR, -1),
     NOT(InstSpec.SPEC_RR, -1),
-    NOP(InstSpec.SPEC_NOARG, -1),
+    NOP(InstSpec.SPEC_NO_ARG, -1),
     REM(InstSpec.SPEC_RRR, -1);
 
     private static final HashMap<String, InstOpcodes> nameMappings;

@@ -16,7 +16,7 @@ import static com.theKidOfArcrania.mips.Constants.SEG_DATA;
  * @author Henry Wang
  */
 public abstract class DirType {
-    private static String[] SEGMENT_TYPES = {".text", ".data", ".globl", ".ktext", ".kdata"};
+    private static final String[] SEGMENT_TYPES = {".text", ".data", ".globl", ".ktext", ".kdata"};
 
     private final int expectedSegment;
     private final boolean paramArray;
@@ -113,6 +113,11 @@ public abstract class DirType {
         return new byte[0];
     }
 
+    /**
+     * Checks whether the current segment matches our expected segment type
+     * @param curSegment the current segment
+     * @return true if check is successful, false if check failed
+     */
     private boolean checkSegment(int curSegment) {
         return expectedSegment == -1 || expectedSegment == curSegment ||
                 curSegment <= SEG_DATA && expectedSegment == curSegment - 3;

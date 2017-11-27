@@ -8,8 +8,8 @@ package com.theKidOfArcrania.mips.parsing;
  */
 public class Argument {
     private final Object value;
-    private final Range tokenPos;
     private final ParamType type;
+    private Range tokenPos;
 
     /**
      * Creates a new argument object from the current state of the token reader.
@@ -44,5 +44,14 @@ public class Argument {
 
     public ParamType getExactType() {
         return type;
+    }
+
+    /**
+     * Shifts this argument's token position by a number of lines. This should only be internally called by
+     * {@link ArgumentedStatement} whenever we shift the code statement by a number of lines.
+     * @param count the number of lines to increment by, if this is negative, this will decrement line count.
+     */
+    void shiftLines(int count) {
+        tokenPos = tokenPos.shiftLines(count);
     }
 }

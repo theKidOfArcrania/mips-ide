@@ -7,6 +7,7 @@ import com.theKidOfArcrania.mips.parsing.inst.InstStatement;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -90,10 +91,12 @@ public class CodeParser {
      * @param lineNum the 1-based line number.
      * @param line    the line to insert.
      */
-    //TODO: update line references
     public void insertLine(int lineNum, String line) {
         reader.insertLine(lineNum, line);
         parsedCode.add(lineNum - 1, DIRTY_STATEMENT);
+        for (int i = lineNum; i < parsedCode.size(); i++) {
+            parsedCode.get(i).updateLinePos(i + 1);
+        }
     }
 
     /**
@@ -113,10 +116,12 @@ public class CodeParser {
      *
      * @param lineNum the line number to remove.
      */
-    //TODO: update line references
     public void deleteLine(int lineNum) {
         reader.deleteLine(lineNum);
         parsedCode.remove(lineNum - 1);
+        for (int i = lineNum - 1; i < parsedCode.size(); i++) {
+            parsedCode.get(i).updateLinePos(i + 1);
+        }
     }
 
     /**
@@ -137,6 +142,23 @@ public class CodeParser {
      * @return true if re-parse was successful, false if some errors occurred while re-parsing.
      */
     public boolean reparse(boolean parseInvalid) {
+        return reparse(parseInvalid, null);
+    }
+
+    /**
+     * Re-parses all the lines of dirty code. This may emit any parsing errors if encountered. By definition this
+     * function is successful if and only if every single line is parsed, and is not left dirty or invalid. This
+     * particular variant will automatically cancel when the atomic boolean value gets flagged
+     *
+     * @param parseInvalid determines whether to reparse any invalid lines.
+     * @param cancelled the atomic boolean prop to check if task was cancelled.
+     * @return true if re-parse was successful, false if some errors occurred while re-parsing.
+     */
+    public boolean reparse(boolean parseInvalid, AtomicBoolean cancelled) {
+        if (cancelled == null) {
+            cancelled = new AtomicBoolean(false);
+        }
+
         boolean success = true;
         for (int i = 0; i < parsedCode.size(); i++) {
             boolean invalid = parsedCode.get(i) == INVALID_STATEMENT;
@@ -146,6 +168,9 @@ public class CodeParser {
                 try {
                     reader.beginLine(i + 1);
                     success &= parseLine();
+                    if (cancelled.get()) {
+                        return false;
+                    }
                 } catch (RuntimeException e) {
                     //TODO: Better error logging.
                     reader.error("Error occurred while parsing line: " + e.toString() + ".", Range.lineRange(reader));
@@ -159,6 +184,7 @@ public class CodeParser {
         return success;
     }
 
+
     /**
      * Ensures that all the symbols referred to by the code are resolved. This should be faster than the parsing
      * time, so this will be called on each parsed statement each time.
@@ -166,17 +192,39 @@ public class CodeParser {
      * @return true if resolution was successful, false if it failed.
      */
     public boolean resolveSymbols() {
+        return resolveSymbols(null);
+    }
+
+    /**
+     * Ensures that all the symbols referred to by the code are resolved. This should be faster than the parsing
+     * time, so this will be called on each parsed statement each time. This particular variant will automatically
+     * cancel when the atomic boolean value gets flagged
+     *
+     * @param cancelled the atomic boolean prop to check if task was cancelled
+     * @return true if resolution was successful, false if it failed.
+     */
+    public boolean resolveSymbols(AtomicBoolean cancelled) {
+        if (cancelled == null) {
+            cancelled = new AtomicBoolean(false);
+        }
+
         CodeSymbols symbols = new CodeSymbols();
 
         //Resolve statements
         boolean success = true;
         for (CodeStatement s : parsedCode) {
             success &= s.resolveSymbols(symbols);
+            if (cancelled.get()) {
+                return false;
+            }
         }
 
         //Verify that all symbols are resolved
         for (CodeStatement s : parsedCode) {
             success &= s.verifySymbols(symbols);
+            if (cancelled.get()) {
+                return false;
+            }
         }
 
         return success;
@@ -306,6 +354,13 @@ public class CodeParser {
         }
     }
 
+    /**
+     * Marks the character syntax of a specific character between a start (inclusive) and end (exclusive) point
+     * @param start     the inclusive starting index
+     * @param end       the exclusive ending index
+     * @param ch        the character to highlight
+     * @param highlight the type of highlight to tag with character
+     */
     private void characterSyntax(int start, int end, char ch, SyntaxType highlight) {
         String line = reader.getLine();
         start = line.indexOf(ch, start);

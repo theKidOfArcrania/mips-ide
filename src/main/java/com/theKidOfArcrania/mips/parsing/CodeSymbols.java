@@ -37,11 +37,20 @@ public class CodeSymbols {
         currentSegment = -1;
     }
 
+    /**
+     * Adds a label to the list of global symbols. This label does not need to exist at this point
+     * @param label the label to add
+     */
     public void addGlobalSymbol(String label) {
         global.add(label);
     }
 
-    public boolean isGlobalLabel(String label) {
+    /**
+     * Queries whether if a label is a global symbol
+     * @param label the label to check
+     * @return true if it is global, false if not global.
+     */
+    public boolean isGlobalSymbol(String label) {
         return global.contains(label);
     }
 

@@ -47,6 +47,15 @@ public class Position implements Comparable<Position> {
         return lineNumber == position.lineNumber && columnNumber == position.columnNumber;
     }
 
+    /**
+     * Creates a copy of this position shifted by a number of lines
+     * @param count the number of lines to increment by, if this is negative, this will decrement line count.
+     * @return a new copy of this position with the shifted count.
+     */
+    public Position shiftLines(int count) {
+        return new Position(count + lineNumber, columnNumber);
+    }
+
     @Override
     public int hashCode() {
         int result = lineNumber;

@@ -18,7 +18,7 @@ public class MemState implements Constants, Registers {
      */
     private static class Segment {
         private final int start;
-        private byte[] data;
+        private final byte[] data;
 
         /**
          * Constructs a memory segment
@@ -71,13 +71,15 @@ public class MemState implements Constants, Registers {
         }
     }
 
+    private static final long BYTE_MASK = 0xFFL;
+
     private int pc;
     private int nPC;
 
     private int high;
     private int low;
     private final int[] regs = new int[REGISTER_COUNT];
-    private RangeSet<Segment> memory = new RangeSet<>();
+    private final RangeSet<Segment> memory = new RangeSet<>();
 
     //Program counter operations
     /**
@@ -88,18 +90,12 @@ public class MemState implements Constants, Registers {
     }
 
     /**
-     * @return the next program-counter value
-     */
-    public int nPC() {
-        return nPC;
-    }
-
-    /**
      * Sets the next instruction to execute.
-     * @param nPC the next program counter value
+     * @param pc the next program counter value
      */
-    public void nPC(int nPC) {
-        this.nPC = nPC;
+    public void pc(int pc) {
+        this.pc = pc;
+        this.nPC = pc + INST_SIZE;
     }
 
     /**
@@ -351,7 +347,7 @@ public class MemState implements Constants, Registers {
 
         long ret = 0;
         for (int i = 0; i < bytes; i++) {
-            ret |= (buff[i] & 0xFFL) << (i * Byte.SIZE);
+            ret |= (buff[i] & BYTE_MASK) << (i * Byte.SIZE);
         }
 
         return ret;
