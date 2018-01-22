@@ -9,6 +9,7 @@ import java.util.Set;
 
 /**
  * Represents the memory state (RAM memory and registers) for a MIPS program, including the TEXT/DATA segments.
+ *
  * @author Henry Wang
  */
 public class MemState implements Constants, Registers {
@@ -22,8 +23,9 @@ public class MemState implements Constants, Registers {
 
         /**
          * Constructs a memory segment
+         *
          * @param start the starting/base address
-         * @param size the size of this memory segment
+         * @param size  the size of this memory segment
          */
         public Segment(int start, int size) {
             this.start = start;
@@ -32,6 +34,7 @@ public class MemState implements Constants, Registers {
 
         /**
          * Gets a byte at the address within this segment
+         *
          * @param addr the absolute address to fetch
          * @return the byte value
          */
@@ -41,8 +44,9 @@ public class MemState implements Constants, Registers {
 
         /**
          * Bulk get method.
-         * @param addr the address to start getting from
-         * @param buff the byte buffer to write to
+         *
+         * @param addr   the address to start getting from
+         * @param buff   the byte buffer to write to
          * @param offset the index offset of buffer to start from
          * @param length the number of bytes to get.
          */
@@ -52,8 +56,9 @@ public class MemState implements Constants, Registers {
 
         /**
          * Sets a byte at the address within this segment
+         *
          * @param addr the absolute address to set
-         * @param b the value to set to
+         * @param b    the value to set to
          */
         public void set(int addr, byte b) {
             data[addr - start] = b;
@@ -61,8 +66,9 @@ public class MemState implements Constants, Registers {
 
         /**
          * Bulk set method.
-         * @param addr the address to start setting to
-         * @param buff the byte buffer to read from
+         *
+         * @param addr   the address to start setting to
+         * @param buff   the byte buffer to read from
          * @param offset the index offset of buffer to start from
          * @param length the number of bytes to set.
          */
@@ -82,6 +88,7 @@ public class MemState implements Constants, Registers {
     private final RangeSet<Segment> memory = new RangeSet<>();
 
     //Program counter operations
+
     /**
      * @return the current program counter
      */
@@ -91,6 +98,7 @@ public class MemState implements Constants, Registers {
 
     /**
      * Sets the next instruction to execute.
+     *
      * @param pc the next program counter value
      */
     public void pc(int pc) {
@@ -100,6 +108,7 @@ public class MemState implements Constants, Registers {
 
     /**
      * Advances the program counter by an offset number of bytes.
+     *
      * @param offset the offset in bytes to advance the program counter.
      */
     public void advancePC(int offset) {
@@ -109,6 +118,7 @@ public class MemState implements Constants, Registers {
 
     /**
      * Jumps the program counter to a specified address
+     *
      * @param address the address to jump to
      */
     public void jump(int address) {
@@ -117,8 +127,10 @@ public class MemState implements Constants, Registers {
     }
 
     //Register operations
+
     /**
      * Gets a register value
+     *
      * @param regInd the register index to get
      * @return the value of the register
      */
@@ -128,8 +140,9 @@ public class MemState implements Constants, Registers {
 
     /**
      * Sets a register value
+     *
      * @param regInd the register index to set
-     * @param val the value to set it to
+     * @param val    the value to set it to
      */
     public void setRegister(int regInd, int val) {
         regs[regInd] = val;
@@ -152,10 +165,12 @@ public class MemState implements Constants, Registers {
     }
 
     //Memory operations
+
     /**
      * Allocates a memory segment at a starting base address.
+     *
      * @param start the starting/base address
-     * @param size the size of this memory segment
+     * @param size  the size of this memory segment
      */
     public void allocateSegment(int start, int size) {
         if (start < 0 || size < 0) {
@@ -178,25 +193,28 @@ public class MemState implements Constants, Registers {
 
     /**
      * Gets a single byte
+     *
      * @param addr address to get byte
      * @return the value
      * @throws ProgramException if the address does not map to a valid segment (ADDRL).
      */
-    public byte get(int addr) throws ProgramException{
+    public byte get(int addr) throws ProgramException {
         return getSegment(addr, true).get(addr);
     }
 
     /**
      * Bulk get method.
-     * @param addr the address to start getting from
-     * @param buff the byte buffer to write to
+     *
+     * @param addr   the address to start getting from
+     * @param buff   the byte buffer to write to
      * @param offset the index offset of buffer to start from
      * @param length the number of bytes to get.
      * @throws ProgramException if the address does not map to a valid segment (ADDRL).
      */
     public void get(int addr, byte[] buff, int offset, int length) throws ProgramException {
-        if (offset < 0 || offset > buff.length || length > buff.length || offset + length > buff.length)
+        if (offset < 0 || offset > buff.length || length > buff.length || offset + length > buff.length) {
             throw new ProgramException(ErrorType.ADDRL);
+        }
 
         while (length > 0) {
             Segment seg = getSegment(addr, true);
@@ -215,6 +233,7 @@ public class MemState implements Constants, Registers {
 
     /**
      * Bulk convenience get method.
+     *
      * @param addr the address to start getting from
      * @param buff the byte buffer to write to.
      * @throws ProgramException if the address does not map to a valid segment (ADDRL).
@@ -225,26 +244,29 @@ public class MemState implements Constants, Registers {
 
     /**
      * Bulk convenience get method.
+     *
      * @param addr the address to start getting from
      * @return a 16-bit integer in little endian.
      * @throws ProgramException if the address does not map to a valid segment, or if address is misaligned (ADDRL).
      */
     public short getShort(int addr) throws ProgramException {
-        return (short)getLittleEndian(addr, Short.BYTES);
+        return (short) getLittleEndian(addr, Short.BYTES);
     }
 
     /**
      * Bulk convenience get method.
+     *
      * @param addr the address to start getting from
      * @return a 32-bit integer in little endian.
      * @throws ProgramException if the address does not map to a valid segment, or if address is misaligned (ADDRL).
      */
     public int getInt(int addr) throws ProgramException {
-        return (int)getLittleEndian(addr, Integer.BYTES);
+        return (int) getLittleEndian(addr, Integer.BYTES);
     }
 
     /**
      * Bulk convenience get method.
+     *
      * @param addr the address to start getting from
      * @return a 64-bit integer in little endian.
      * @throws ProgramException if the address does not map to a valid segment, or if address is misaligned (ADDRL).
@@ -255,25 +277,28 @@ public class MemState implements Constants, Registers {
 
     /**
      * Sets a single byte
+     *
      * @param addr address to set byte
-     * @param val the value to set
+     * @param val  the value to set
      * @throws ProgramException if the address does not map to a valid segment (ADDRS).
      */
-    public void set(int addr, byte val) throws ProgramException{
+    public void set(int addr, byte val) throws ProgramException {
         getSegment(addr, false).set(addr, val);
     }
 
     /**
      * Bulk set method.
-     * @param addr the address to start setting to
-     * @param buff the byte buffer to read from
+     *
+     * @param addr   the address to start setting to
+     * @param buff   the byte buffer to read from
      * @param offset the index offset of buffer to start from
      * @param length the number of bytes to set.
      * @throws ProgramException if the address does not map to a valid segment (ADDRS).
      */
-    public void set(int addr, byte[] buff, int offset, int length) throws ProgramException{
-        if (offset < 0 || offset > buff.length || length > buff.length || offset + length > buff.length)
+    public void set(int addr, byte[] buff, int offset, int length) throws ProgramException {
+        if (offset < 0 || offset > buff.length || length > buff.length || offset + length > buff.length) {
             throw new ProgramException(ErrorType.ADDRS);
+        }
 
         while (length > 0) {
             Segment seg = getSegment(addr, false);
@@ -292,6 +317,7 @@ public class MemState implements Constants, Registers {
 
     /**
      * Bulk convenience set method.
+     *
      * @param addr the address to start setting to
      * @param buff the byte buffer to read from.
      * @throws ProgramException if the address does not map to a valid segment (ADDRS).
@@ -302,8 +328,9 @@ public class MemState implements Constants, Registers {
 
     /**
      * Bulk convenience set method.
+     *
      * @param addr the address to start setting to
-     * @param val 16-bit integer to write
+     * @param val  16-bit integer to write
      * @throws ProgramException if the address does not map to a valid segment, or if address is misaligned (ADDRS).
      */
     public void setShort(int addr, short val) throws ProgramException {
@@ -312,8 +339,9 @@ public class MemState implements Constants, Registers {
 
     /**
      * Bulk convenience set method.
+     *
      * @param addr the address to start setting to
-     * @param val 32-bit integer to write
+     * @param val  32-bit integer to write
      * @throws ProgramException if the address does not map to a valid segment, or if address is misaligned (ADDRS).
      */
     public void setInt(int addr, int val) throws ProgramException {
@@ -322,8 +350,9 @@ public class MemState implements Constants, Registers {
 
     /**
      * Bulk convenience set method.
+     *
      * @param addr the address to start setting to
-     * @param val 64-bit integer to write
+     * @param val  64-bit integer to write
      * @throws ProgramException if the address does not map to a valid segment, or if address is misaligned (ADDRS).
      */
     public void setLong(int addr, long val) throws ProgramException {
@@ -332,7 +361,8 @@ public class MemState implements Constants, Registers {
 
     /**
      * Fetches a little-endian integer of a particular size from memory
-     * @param addr the address to read from
+     *
+     * @param addr  the address to read from
      * @param bytes the size of the integer
      * @return the read integer
      * @throws ProgramException if the address does not map to a valid segment or address is not aligned (ADDRL).
@@ -355,9 +385,10 @@ public class MemState implements Constants, Registers {
 
     /**
      * Writes a little-endian integer of a particular size to memory
-     * @param addr the address to write to
+     *
+     * @param addr  the address to write to
      * @param bytes the size of the integer
-     * @param val the integer to write
+     * @param val   the integer to write
      * @throws ProgramException if the address does not map to a valid segment, or if address is misaligned (ADDRS).
      */
     private void setLittleEndian(int addr, int bytes, long val) throws ProgramException {
@@ -367,7 +398,7 @@ public class MemState implements Constants, Registers {
 
         byte[] buff = new byte[bytes];
         for (int i = 0; i < bytes; i++) {
-            buff[i] = (byte)(val >> (i * Byte.SIZE));
+            buff[i] = (byte) (val >> (i * Byte.SIZE));
         }
 
         set(addr, buff);
@@ -375,15 +406,17 @@ public class MemState implements Constants, Registers {
 
     /**
      * Fetches a memory segment associated that contains the address
+     *
      * @param addr the address to find
-     * @param get whether if this is a get or set operation
+     * @param get  whether if this is a get or set operation
      * @return a memory segment if found
      * @throws ProgramException if the address does not map to a valid segment (ADDRL/ADDRS).
      */
-    private Segment getSegment(int addr, boolean get) throws ProgramException{
+    private Segment getSegment(int addr, boolean get) throws ProgramException {
         Set<Segment> found = memory.get(addr);
-        if (found.isEmpty())
+        if (found.isEmpty()) {
             throw new ProgramException(get ? ErrorType.ADDRL : ErrorType.ADDRS);
+        }
         return found.iterator().next();
     }
 }

@@ -151,7 +151,7 @@ public class CodeParser {
      * particular variant will automatically cancel when the atomic boolean value gets flagged
      *
      * @param parseInvalid determines whether to reparse any invalid lines.
-     * @param cancelled the atomic boolean prop to check if task was cancelled.
+     * @param cancelled    the atomic boolean prop to check if task was cancelled.
      * @return true if re-parse was successful, false if some errors occurred while re-parsing.
      */
     public boolean reparse(boolean parseInvalid, AtomicBoolean cancelled) {
@@ -356,6 +356,7 @@ public class CodeParser {
 
     /**
      * Marks the character syntax of a specific character between a start (inclusive) and end (exclusive) point
+     *
      * @param start     the inclusive starting index
      * @param end       the exclusive ending index
      * @param ch        the character to highlight

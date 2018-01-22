@@ -3,6 +3,7 @@ package com.theKidOfArcrania.mips.util;
 /**
  * Manages a set of bits, allowing for easier bit manipulation with bit offsets that might not be aligned to byte
  * boundaries. The 0th bit within a byte is defined as the MSB of the number.
+ *
  * @author Henry Wang
  */
 public class BitPacker {
@@ -17,22 +18,25 @@ public class BitPacker {
 
     /**
      * Constructs a bit packer
+     *
      * @param bitSize the size in the number of bits to create with
      */
     public BitPacker(int bitSize) {
         this.size = bitSize;
 
         int bytes = bitSize / BYTE_BITS;
-        if (bytes * BYTE_BITS < bitSize)
+        if (bytes * BYTE_BITS < bitSize) {
             bytes++;
+        }
         bits = new byte[bytes];
     }
 
     /**
      * Sets a range of bits (up to 32 bits)
+     *
      * @param offset the bit offset to start at
      * @param length the number of bits to set
-     * @param value the value to set to
+     * @param value  the value to set to
      */
     public void set(int offset, int length, int value) {
         if (offset < 0 || offset > size || length < 0 || length > size || offset + length > size) {
@@ -48,7 +52,7 @@ public class BitPacker {
             int tmp = bits[offset / BYTE_BITS];
             tmp = (tmp & ~MASKS[BYTE_BITS - bitStart]) | val << (BYTE_BITS - bitEnd) |
                     (tmp & MASKS[BYTE_BITS - bitEnd]);
-            bits[offset / BYTE_BITS] = (byte)tmp;
+            bits[offset / BYTE_BITS] = (byte) tmp;
 
             length -= count;
             offset += count;
@@ -57,6 +61,7 @@ public class BitPacker {
 
     /**
      * Fetches a range of bits (up to 32 bits)
+     *
      * @param offset the bit offset to start at
      * @param length the number of bits to fetch
      * @return the fetched bits in MSB format.
@@ -85,8 +90,9 @@ public class BitPacker {
 
     /**
      * Sets a DWORD (32 bit) value
+     *
      * @param offset the bit offset to start at
-     * @param value the value to write.
+     * @param value  the value to write.
      */
     public void setDWORD(int offset, int value) {
         set(offset, DWORD_BITS, value);
@@ -94,8 +100,9 @@ public class BitPacker {
 
     /**
      * Sets a WORD (16 bit) value
+     *
      * @param offset the bit offset to start at
-     * @param value the value to write.
+     * @param value  the value to write.
      */
     public void setWORD(int offset, int value) {
         set(offset, WORD_BITS, value);
@@ -103,8 +110,9 @@ public class BitPacker {
 
     /**
      * Sets a BYTE (8 bit) value
+     *
      * @param offset the bit offset to start at
-     * @param value the value to write.
+     * @param value  the value to write.
      */
     public void setBYTE(int offset, int value) {
         set(offset, BYTE_BITS, value);
@@ -112,6 +120,7 @@ public class BitPacker {
 
     /**
      * Gets a DWORD (32 bit) value
+     *
      * @param offset the bit offset to start at
      * @return a DWORD value
      */
@@ -121,24 +130,27 @@ public class BitPacker {
 
     /**
      * Gets a WORD (16 bit) value
+     *
      * @param offset the bit offset to start at
      * @return a WORD value
      */
     public short getWORD(int offset) {
-        return (short)get(offset, WORD_BITS);
+        return (short) get(offset, WORD_BITS);
     }
 
     /**
      * Gets a BYTE (8 bit) value
+     *
      * @param offset the bit offset to start at
      * @return a BYTE value
      */
     public byte getBYTE(int offset) {
-        return (byte)get(offset, BYTE_BITS);
+        return (byte) get(offset, BYTE_BITS);
     }
 
     /**
      * Obtains the packed byte form of our bit data
+     *
      * @return an byte array
      */
     public byte[] toBytes() {
@@ -147,6 +159,7 @@ public class BitPacker {
 
     /**
      * Checks for out-of-bounds.
+     *
      * @param offset the bit offset to start at
      * @param length the number of bits in this range
      */

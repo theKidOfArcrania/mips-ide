@@ -117,6 +117,7 @@ public class Range implements Comparable<Range> {
 
     /**
      * Creates a copy of this range shifted by a number of lines
+     *
      * @param count the number of lines to increment by, if this is negative, this will decrement line count.
      * @return a new range with the shifted lines
      */

@@ -19,6 +19,7 @@ import static com.theKidOfArcrania.mips.parsing.directive.DirTypes.addDirective;
  * </pre>
  * Each segment represents a different part of the program (text for instructions, data for misc data), and the
  * prefix <code>k</code> represents the kernel counterparts of these segments
+ *
  * @author Henry Wang
  */
 public class SegmentDirType extends DirType {
@@ -37,6 +38,7 @@ public class SegmentDirType extends DirType {
 
     /**
      * Constructs a string-data directive-type
+     *
      * @param segment the segment index represented by this directive
      */
     private SegmentDirType(int segment) {

@@ -5,6 +5,7 @@ import com.theKidOfArcrania.mips.Constants;
 /**
  * Represents an indirect register addressing mode. This refers to the address of the register's value plus an offset
  * from that.
+ *
  * @author Henry Wang
  */
 public class RegIndirect {
@@ -13,6 +14,7 @@ public class RegIndirect {
 
     /**
      * Constructs an register indirect address
+     *
      * @param offset the offset from the register address
      * @param regInd the register index to use with indirect
      */

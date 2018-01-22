@@ -2,6 +2,7 @@ package com.theKidOfArcrania.mips.runner;
 
 /**
  * Represents some error that has occurred while running some MIPS code
+ *
  * @author Henry Wang
  */
 public class ProgramException extends Exception {
@@ -28,7 +29,8 @@ public class ProgramException extends Exception {
 
         /**
          * Constructor for error types
-         * @param number error number
+         *
+         * @param number      error number
          * @param description short description of error.
          */
         ErrorType(int number, String description) {
@@ -45,6 +47,7 @@ public class ProgramException extends Exception {
 
     /**
      * Constructs a program exception
+     *
      * @param type the error type to throw
      */
     public ProgramException(ErrorType type) {

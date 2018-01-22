@@ -4,44 +4,38 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 @SuppressWarnings("JavaDoc")
-public class CodeTokenReaderTest
-{
+public class CodeTokenReaderTest {
 
 
-    private CodeTokenReader initReader(String code)
-    {
+    private CodeTokenReader initReader(String code) {
         CodeTokenReader reader = new CodeTokenReader(code);
         reader.nextLine();
-        reader.addErrorLogger(new ErrorLogger()
-        {
+        reader.addErrorLogger(new ErrorLogger() {
             @Override
-            public void logError(String description, Range highlight)
-            {
+            public void logError(String description, Range highlight) {
                 fail(description);
             }
 
             @Override
-            public void logWarning(String description, Range highlight)
-            {
+            public void logWarning(String description, Range highlight) {
                 fail(description);
             }
         });
         return reader;
     }
 
-    @Test(expected=IllegalStateException.class)
-    public void testNoLine()
-    {
+    @Test(expected = IllegalStateException.class)
+    public void testNoLine() {
         CodeTokenReader reader = new CodeTokenReader("Hello this is identifiers #comment here");
         reader.nextToken();
     }
 
     @Test
-    public void testIdentifierParsing()
-    {
+    public void testIdentifierParsing() {
         CodeTokenReader reader = initReader("Hello this is identifiers #comment here");
         int count = 0;
         while (reader.nextToken())
@@ -51,18 +45,16 @@ public class CodeTokenReaderTest
 
 
     @Test
-    public void testResetLine() throws Exception
-    {
+    public void testResetLine() throws Exception {
         CodeTokenReader reader = initReader("Hello this is identifiers #comment here");
-        while (reader.nextToken());
+        while (reader.nextToken()) ;
         reader.resetLine();
         reader.nextToken();
-        assertEquals("Hello",reader.getToken());
+        assertEquals("Hello", reader.getToken());
     }
 
     @Test
-    public void testGetTokenNum() throws Exception
-    {
+    public void testGetTokenNum() throws Exception {
         CodeTokenReader reader = initReader("A BB C D #comment here");
         int count = 0;
         while (reader.nextToken())
@@ -70,16 +62,14 @@ public class CodeTokenReaderTest
     }
 
     @Test
-    public void testGetTokensRead() throws Exception
-    {
+    public void testGetTokensRead() throws Exception {
         CodeTokenReader reader = initReader("A BB C D #comment here");
-        while (reader.nextToken());
+        while (reader.nextToken()) ;
         assertEquals(4, reader.getTokensRead());
     }
 
     @Test
-    public void testTokenRange() throws Exception
-    {
+    public void testTokenRange() throws Exception {
         CodeTokenReader reader = initReader("A BB C D #comment here");
         reader.nextToken();
         reader.nextToken();
@@ -88,8 +78,7 @@ public class CodeTokenReaderTest
     }
 
     @Test
-    public void testNextArgument() throws Exception
-    {
+    public void testNextArgument() throws Exception {
         CodeTokenReader reader = initReader("A, BB, C, D #comment here");
         int count = 0;
         while (reader.nextArgument())
@@ -98,22 +87,18 @@ public class CodeTokenReaderTest
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testNextArgumentDoubleComma() throws Exception
-    {
+    public void testNextArgumentDoubleComma() throws Exception {
         CodeTokenReader reader = new CodeTokenReader("A, , BB, C, D, #comment here");
         reader.nextLine();
-        reader.addErrorLogger(new ErrorLogger()
-        {
+        reader.addErrorLogger(new ErrorLogger() {
             @Override
-            public void logError(String description, Range highlight)
-            {
+            public void logError(String description, Range highlight) {
                 assertEquals("Unexpected comma.", description);
                 throw new IllegalStateException();
             }
 
             @Override
-            public void logWarning(String description, Range highlight)
-            {
+            public void logWarning(String description, Range highlight) {
                 fail(description);
             }
         });
@@ -124,22 +109,18 @@ public class CodeTokenReaderTest
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testNextArgumentTrailingComma() throws Exception
-    {
+    public void testNextArgumentTrailingComma() throws Exception {
         CodeTokenReader reader = new CodeTokenReader("A, BB, C, D, #comment here");
         reader.nextLine();
-        reader.addErrorLogger(new ErrorLogger()
-        {
+        reader.addErrorLogger(new ErrorLogger() {
             @Override
-            public void logError(String description, Range highlight)
-            {
+            public void logError(String description, Range highlight) {
                 assertEquals("Unexpected comma.", description);
                 throw new IllegalStateException();
             }
 
             @Override
-            public void logWarning(String description, Range highlight)
-            {
+            public void logWarning(String description, Range highlight) {
                 fail(description);
             }
         });
@@ -150,8 +131,7 @@ public class CodeTokenReaderTest
     }
 
     @Test
-    public void testVisitToken() throws Exception
-    {
+    public void testVisitToken() throws Exception {
         ArrayList<String> tokens = new ArrayList<>();
         CodeTokenReader reader = initReader("A BB C D #comment here");
         while (reader.nextToken())
@@ -167,8 +147,7 @@ public class CodeTokenReaderTest
         while (reader.nextToken());
         assertEquals(4, tokens.size());
 
-        while (ind --> 0)
-        {
+        while (ind-- > 0) {
             reader.visitToken(ind);
             assertEquals(tokens.get(ind), reader.getToken());
         }

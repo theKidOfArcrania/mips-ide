@@ -39,6 +39,7 @@ public class CodeSymbols {
 
     /**
      * Adds a label to the list of global symbols. This label does not need to exist at this point
+     *
      * @param label the label to add
      */
     public void addGlobalSymbol(String label) {
@@ -47,6 +48,7 @@ public class CodeSymbols {
 
     /**
      * Queries whether if a label is a global symbol
+     *
      * @param label the label to check
      * @return true if it is global, false if not global.
      */
@@ -67,8 +69,9 @@ public class CodeSymbols {
 
     /**
      * Maps a code statement to the top of the current segment, possibly aligning the code statement if necessary.
-     * @param smt the code statement
-     * @param size the size of this code statement to allocate
+     *
+     * @param smt      the code statement
+     * @param size     the size of this code statement to allocate
      * @param defAlign the default alignment needed by this statement
      * @throws IllegalStateException if we are not in a segment yet.
      */
@@ -83,6 +86,7 @@ public class CodeSymbols {
 
     /**
      * Obtains a code statement's associated address, or -1 if not associated at all
+     *
      * @param smt the code statement
      * @return the statement address or -1 if not found
      */
@@ -97,6 +101,7 @@ public class CodeSymbols {
 
     /**
      * Sets the alignment to a number of bits.
+     *
      * @param bits the number of bits to align addresses to
      */
     public void setAlignment(int bits) {
@@ -110,6 +115,7 @@ public class CodeSymbols {
 
     /**
      * Adds a pending label that will automatically map to the next statement that has an address associated with it.
+     *
      * @param lbl the string label
      * @return true if this is added, false if this label already exists.
      */
@@ -120,7 +126,8 @@ public class CodeSymbols {
 
     /**
      * Aligns a particular address value by padding with some spaces
-     * @param addr the address to align
+     *
+     * @param addr     the address to align
      * @param defAlign default alignment to do (in number of bits)
      * @return an aligned address based on current alignment parameters
      */
@@ -141,6 +148,7 @@ public class CodeSymbols {
 
     /**
      * Obtains a copy of the set of labels currently pending to be added.
+     *
      * @return the set of pending labels
      */
     public Set<String> getPending() {
@@ -149,7 +157,8 @@ public class CodeSymbols {
 
     /**
      * Maps a code statement to an associated address of memory. This will also map any pending labels to this statement
-     * @param smt the code statement
+     *
+     * @param smt  the code statement
      * @param addr the address
      */
     public void mapStatementToAddress(CodeStatement smt, int addr) {
@@ -164,6 +173,7 @@ public class CodeSymbols {
 
     /**
      * Resolves a label's location to an address.
+     *
      * @param lbl name of the label
      * @return the address of the label or -1 if not resolved
      */

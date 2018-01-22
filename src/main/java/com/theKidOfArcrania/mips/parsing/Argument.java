@@ -49,6 +49,7 @@ public class Argument {
     /**
      * Shifts this argument's token position by a number of lines. This should only be internally called by
      * {@link ArgumentedStatement} whenever we shift the code statement by a number of lines.
+     *
      * @param count the number of lines to increment by, if this is negative, this will decrement line count.
      */
     void shiftLines(int count) {

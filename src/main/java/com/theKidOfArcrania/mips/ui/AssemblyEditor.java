@@ -95,13 +95,14 @@ public class AssemblyEditor extends StackPane {
          * Creates a new line styles
          */
         public LineStyles() {
-            cursorPos = new Position(1,0);
+            cursorPos = new Position(1, 0);
             lines = new ArrayList<>();
         }
 
         public void setCursorPos(Position cursorPos) {
-            if (this.cursorPos.getLineNumber() < lines.size())
+            if (this.cursorPos.getLineNumber() < lines.size()) {
                 lines.get(this.cursorPos.getLineNumber() - 1).modified = true;
+            }
             lines.get(cursorPos.getLineNumber() - 1).modified = true;
             this.cursorPos = cursorPos;
         }
@@ -240,7 +241,7 @@ public class AssemblyEditor extends StackPane {
                 }
 
                 RangeSet<HighlightMark<?>> markers;
-                synchronized(this) {
+                synchronized (this) {
                     markers = new RangeSet<>(line.markers);
                 }
 
@@ -275,6 +276,7 @@ public class AssemblyEditor extends StackPane {
         /**
          * Finds the corresponding pair of parenthesis starting at the specified index, and adds the appropriate
          * color styling to the range set
+         *
          * @param lineNum the line number to start from
          * @param ind     the column index to start from
          * @param search  the character, either close or open parenthesis to match.
@@ -285,17 +287,20 @@ public class AssemblyEditor extends StackPane {
             if (ind >= 0 && ind < line.length()) {
                 int depth = 0;
                 char ch = line.charAt(ind);
-                if (ch != search)
+                if (ch != search) {
                     return;
+                }
 
                 int i = ind;
                 do {
-                    if (line.charAt(i) == '(')
+                    if (line.charAt(i) == '(') {
                         depth++;
-                    else if (line.charAt(i) == ')')
+                    } else if (line.charAt(i) == ')') {
                         depth--;
-                    if (depth == 0)
+                    }
+                    if (depth == 0) {
                         break;
+                    }
                     i += ch == '(' ? 1 : -1;
                 } while (i >= 0 && i < line.length());
 
@@ -315,6 +320,7 @@ public class AssemblyEditor extends StackPane {
 
     /**
      * Helper method that chains a parameter object with an action
+     *
      * @param param   the parameter to chain
      * @param running the function to run with this object
      * @param <P>     the parameter object type
@@ -456,20 +462,24 @@ public class AssemblyEditor extends StackPane {
      * This processes the resulting line styles (syntax highlighting and tags) that have been emitted by our code
      * parser into our line styles object. Note: THIS METHOD IS NOT THREAD-SAFE, AND THE CALLER METHOD SHOULD ALREADY
      * MAKE SYNCHRONIZED LOCKS
+     *
      * @param cancelled the atomic boolean prop to check if task is cancelled
      */
     @SuppressWarnings("unchecked")
     private void processLineStyles(AtomicBoolean cancelled) {
-        if (cancelled.get())
+        if (cancelled.get()) {
             return;
+        }
 
         highlightSyntaxes.clear();
         highlightTags.clear();
-        if (parser.reparse(false, cancelled))
+        if (parser.reparse(false, cancelled)) {
             parser.resolveSymbols(cancelled);
+        }
 
-        if (cancelled.get())
+        if (cancelled.get()) {
             return;
+        }
 
         List<HighlightMark> markList = new ArrayList<>(highlightSyntaxes);
         markList.addAll(highlightTags);
@@ -483,8 +493,9 @@ public class AssemblyEditor extends StackPane {
             ind += lines[i].length() + 1;
         }
 
-        if (cancelled.get())
+        if (cancelled.get()) {
             return;
+        }
 
         //Compute all the highlighting
         for (int i = 0; i < lines.length; i++)
@@ -660,8 +671,9 @@ public class AssemblyEditor extends StackPane {
     private int countLines(String str) {
         int lines = 1;
         for (char c : str.toCharArray()) {
-            if (c == '\n')
+            if (c == '\n') {
                 lines++;
+            }
         }
         return lines;
     }

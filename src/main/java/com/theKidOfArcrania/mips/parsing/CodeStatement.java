@@ -14,6 +14,7 @@ public abstract class CodeStatement {
      * inserted or deleted, shifting the line position of the next few lines. This may also be called when no line
      * shift has occurred. In that case, this should ignore the update call. Subclasses should implement this method
      * by, for example, updating all {@link Range} and {@link Position} classes to point to the correct line number.
+     *
      * @param line the new line number this code statement should be on.
      */
     public abstract void updateLinePos(int line);
@@ -40,8 +41,9 @@ public abstract class CodeStatement {
 
     /**
      * Writes this code statement into a byte instruction
-     * @return a byte array representing this instruction
+     *
      * @param symbols the fully resolved symbols to write.
+     * @return a byte array representing this instruction
      */
     public abstract byte[] write(CodeSymbols symbols);
 

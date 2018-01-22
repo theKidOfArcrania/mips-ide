@@ -72,6 +72,7 @@ public class RangeSet<T> implements Iterable<RangeSet<T>.RangeElement> {
 
     /**
      * Copies all range elements from the other range set.
+     *
      * @param other the other range set to copy from.
      */
     public RangeSet(RangeSet<? extends T> other) {
@@ -138,7 +139,8 @@ public class RangeSet<T> implements Iterable<RangeSet<T>.RangeElement> {
 
     /**
      * Checks if the particular range is empty;
-     * @param low the low end of range
+     *
+     * @param low  the low end of range
      * @param high the high end of range
      * @return true if we have an empty range, false if not.
      */

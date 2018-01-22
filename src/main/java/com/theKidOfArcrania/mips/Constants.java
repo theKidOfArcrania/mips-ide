@@ -16,8 +16,8 @@ public interface Constants {
     int SEG_KTEXT = 3;
     int SEG_KDATA = 4;
 
-    int ADDR_TEXT  = 0x00400000;
-    int ADDR_DATA  = 0x10010000;
+    int ADDR_TEXT = 0x00400000;
+    int ADDR_DATA = 0x10010000;
     int ADDR_GLOBL = 0x10000000;
     int ADDR_KTEXT = 0x40000000;
     int ADDR_KDATA = 0x40010000;

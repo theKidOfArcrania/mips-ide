@@ -10,6 +10,7 @@ import static com.theKidOfArcrania.mips.Constants.*;
 
 //TODO: support sw, lw addr psuedo-inst
 //TODO: support gp (extern) addressing
+
 /**
  * This statement represents a single instruction.
  *
@@ -57,6 +58,7 @@ public class InstStatement extends ArgumentedStatement {
 
     /**
      * Converts possibly psuedo-instructions into its corresponding real instructions
+     *
      * @param reader the code token reader
      * @param opcode the instruction opcode
      * @param args   the array of arguments.
@@ -73,7 +75,7 @@ public class InstStatement extends ArgumentedStatement {
                 real.add(new InstStatement(reader, InstOpcodes.ADDU, args[0], ARG_R_ZERO, ARG_R_ZERO));
                 break;
             case LI:
-                int addr = (Integer)args[1].getValue();
+                int addr = (Integer) args[1].getValue();
                 real.add(new InstStatement(reader, InstOpcodes.LUI, args[0], new Argument(addr >> Short.SIZE,
                         args[1].getTokenPos(), BasicParamType.HWORD)));
                 real.add(new InstStatement(reader, InstOpcodes.ORI, args[0], new Argument(addr & WORD_MASK,
@@ -206,7 +208,7 @@ public class InstStatement extends ArgumentedStatement {
     public byte[] write(CodeSymbols symbols) {
         if (opcode == InstOpcodes.LA) {
             Argument args[] = getArgs();
-            int addr = symbols.resolveLabel((String)args[1].getValue());
+            int addr = symbols.resolveLabel((String) args[1].getValue());
             real[0] = new InstStatement(reader, InstOpcodes.LUI, args[0], new Argument(addr >> Short.SIZE,
                     args[1].getTokenPos(), BasicParamType.HWORD));
             real[1] = new InstStatement(reader, InstOpcodes.ORI, args[0], new Argument(addr & WORD_MASK,

@@ -4,10 +4,10 @@ import com.theKidOfArcrania.mips.Constants;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings({"JavaDoc", "MagicNumber"})
-public class MemStateTest implements Constants{
+public class MemStateTest implements Constants {
 
     private MemState mem;
 
@@ -22,22 +22,22 @@ public class MemStateTest implements Constants{
         mem.allocateSegment(27, 50);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void memoverlap1() throws Exception {
         mem.allocateSegment(23, 2);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void memoverlap2() throws Exception {
         mem.allocateSegment(24, 1);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void memoverlap3() throws Exception {
         mem.allocateSegment(1, 0);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void memoverlap4() throws Exception {
         mem.allocateSegment(29, 1);
     }
@@ -54,17 +54,17 @@ public class MemStateTest implements Constants{
         mem.allocateSegment(23, 0);
     }
 
-    @Test(expected=ProgramException.class)
+    @Test(expected = ProgramException.class)
     public void memalign1() throws Exception {
         mem.setInt(1, 2);
     }
 
-    @Test(expected=ProgramException.class)
+    @Test(expected = ProgramException.class)
     public void memalign2() throws Exception {
         mem.getInt(1);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void memoverflow() throws Exception {
         mem.allocateSegment(Integer.MAX_VALUE - 1, 20);
     }
@@ -81,7 +81,7 @@ public class MemStateTest implements Constants{
 
     @Test
     public void blockShorts() throws Exception {
-        mem.setShort(4, (short)0xCAFE);
+        mem.setShort(4, (short) 0xCAFE);
         assertEquals(0xCAFE, mem.getShort(4) & 0xFFFF);
         assertEquals(0, mem.get(6));
     }
@@ -130,16 +130,16 @@ public class MemStateTest implements Constants{
 
     @Test
     public void simpleBytes() throws Exception {
-        mem.set(24, (byte)0xFF);
+        mem.set(24, (byte) 0xFF);
         assertEquals(0xFF, mem.get(24) & 0xFF);
     }
 
-    @Test(expected=ProgramException.class)
+    @Test(expected = ProgramException.class)
     public void segfault1() throws Exception {
         mem.get(23);
     }
 
-    @Test(expected=ProgramException.class)
+    @Test(expected = ProgramException.class)
     public void segfault2() throws Exception {
         byte[] buff = new byte[24];
         mem.get(0, buff);

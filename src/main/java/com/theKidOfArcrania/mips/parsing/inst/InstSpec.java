@@ -6,11 +6,8 @@ import java.util.Arrays;
 
 import static com.theKidOfArcrania.mips.parsing.BasicParamType.LOCATION;
 import static com.theKidOfArcrania.mips.parsing.BasicParamType.REGISTER;
-import static com.theKidOfArcrania.mips.parsing.Range.tokenRange;
 import static com.theKidOfArcrania.mips.parsing.inst.InstFormat.*;
-import static com.theKidOfArcrania.mips.runner.Registers.REG_AT;
-import static com.theKidOfArcrania.mips.runner.Registers.REG_K0;
-import static com.theKidOfArcrania.mips.runner.Registers.REG_K1;
+import static com.theKidOfArcrania.mips.runner.Registers.*;
 
 /**
  * An instruction specification representing a list of arguments and argument types for a particular instruction
@@ -50,8 +47,9 @@ public enum InstSpec {
 
     /**
      * Queries for an optional register argument and returns the resulting argument array.
+     *
      * @param reader the code token reader
-     * @param args the current list of arguments.
+     * @param args   the current list of arguments.
      * @return null if an error occurred, otherwise, the resulting argument after optional parameter
      */
     private static Argument[] optRegister(CodeTokenReader reader, Argument[] args) {
@@ -111,7 +109,7 @@ public enum InstSpec {
             ParamType type = inst.getArgExactType(i);
             Object val = inst.getArgValue(i);
             if (type == LOCATION) {
-                int addr = resolved.resolveLabel((String)val);
+                int addr = resolved.resolveLabel((String) val);
                 if (addr == -1) {
                     logger.logError("Unresolved symbol.", inst.getArg(i).getTokenPos());
                     return false;
@@ -123,7 +121,7 @@ public enum InstSpec {
                         logger.logError("Imprecise jump. (Jump too far).", inst.getArg(i).getTokenPos());
                         return false;
                     }
-                } else if (inst.getOpcode() != InstOpcodes.LA){
+                } else if (inst.getOpcode() != InstOpcodes.LA) {
                     int offset = (addr - instAddr) >> 2;
                     if (offset != (short) offset) {
                         logger.logError("Branch offset too big.", inst.getArg(i).getTokenPos());
@@ -131,7 +129,7 @@ public enum InstSpec {
                     }
                 }
             } else if (type == REGISTER) {
-                int reg = (Integer)val;
+                int reg = (Integer) val;
                 if (reg == REG_AT || reg == REG_K0 || reg == REG_K1) {
                     logger.logWarning("Reserved register", inst.getArg(i).getTokenPos());
                 }

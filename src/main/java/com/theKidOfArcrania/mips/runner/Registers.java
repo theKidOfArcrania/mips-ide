@@ -2,6 +2,7 @@ package com.theKidOfArcrania.mips.runner;
 
 /**
  * Holds all the special register indexes
+ *
  * @author Henry Wang
  */
 public interface Registers {

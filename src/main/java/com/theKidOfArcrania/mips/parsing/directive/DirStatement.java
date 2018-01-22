@@ -5,15 +5,16 @@ import com.theKidOfArcrania.mips.parsing.*;
 /**
  * This statement represents a directive. Directives are prepended by a dot (.).
  *
+ * @author Henry Wang
  * @see DirType
  * @see DirTypes
- * @author Henry Wang
  */
 public class DirStatement extends ArgumentedStatement {
 
     /**
      * Parses a directive statement. This take the current line of the code token reader and parses the arguments,
      * returning a parsed directive statement.
+     *
      * @param reader the code token reader
      * @return the parsed statement
      */

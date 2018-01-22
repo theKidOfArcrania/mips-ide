@@ -4,7 +4,10 @@ import com.theKidOfArcrania.mips.Constants;
 import com.theKidOfArcrania.mips.runner.ProgramException.ErrorType;
 import com.theKidOfArcrania.mips.util.BitPacker;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.Scanner;
 
 import static com.theKidOfArcrania.mips.runner.ProgramException.ErrorType.ARIH;
@@ -12,8 +15,10 @@ import static java.lang.Integer.toUnsignedLong;
 import static java.lang.Short.toUnsignedInt;
 
 //TODO: global pointer is at 0x10008000
+
 /**
  * This interprets instruction opcodes for a MIPS program, allowing step-by-step running.
+ *
  * @author Henry Wang
  */
 public class Interpreter implements Constants, Registers {
@@ -51,6 +56,7 @@ public class Interpreter implements Constants, Registers {
 
     /**
      * Appends a .text chunk to the end of the text segment
+     *
      * @param chunk the chunk of data to add
      * @throws ProgramException an error occurred while trying to append the data
      */
@@ -62,6 +68,7 @@ public class Interpreter implements Constants, Registers {
 
     /**
      * Appends a .data chunk to the end of the data segment
+     *
      * @param chunk the chunk of data to add
      * @throws ProgramException an error occurred while trying to append the data
      */
@@ -72,10 +79,11 @@ public class Interpreter implements Constants, Registers {
 
     /**
      * Executes a single instruction, specifically the instruction that PC is pointing to
+     *
      * @throws ProgramException if executing this instruction results in an illegal action
      */
     @SuppressWarnings("MagicNumber")
-    public void execute() throws ProgramException{
+    public void execute() throws ProgramException {
         int pc = state.pc();
 
         current.setDWORD(0, state.getInt(pc));
@@ -90,7 +98,7 @@ public class Interpreter implements Constants, Registers {
         int advance = 4;
         switch (current.get(0, BITS_OPCODE)) {
             case 0x00: //R-type opcodes
-                switch(current.get(BITS_FUNCT_OFF, BITS_FUNCT)) {
+                switch (current.get(BITS_FUNCT_OFF, BITS_FUNCT)) {
                     case 0x00: //sll
                         reg(regD, reg(regT) << shamt);
                         break;
@@ -136,14 +144,14 @@ public class Interpreter implements Constants, Registers {
                         state.setLow(reg(regS));
                         break;
                     case 0x18: //mult
-                        long res = (long)reg(regS) * reg(regT);
-                        state.setLow((int)res);
-                        state.setHigh((int)(res >>> Integer.SIZE));
+                        long res = (long) reg(regS) * reg(regT);
+                        state.setLow((int) res);
+                        state.setHigh((int) (res >>> Integer.SIZE));
                         break;
                     case 0x19: //multu
                         res = regU(regS) * regU(regT);
-                        state.setLow((int)res);
-                        state.setHigh((int)(res >>> Integer.SIZE));
+                        state.setLow((int) res);
+                        state.setHigh((int) (res >>> Integer.SIZE));
                         break;
                     case 0x1A: //div
                         if (reg(regT) == 0) {
@@ -156,19 +164,19 @@ public class Interpreter implements Constants, Registers {
                         if (reg(regT) == 0) {
                             throw new ProgramException(ARIH);
                         }
-                        state.setLow((int)(regU(regS) / regU(regT)));
-                        state.setHigh((int)(regU(regS) % regU(regT)));
+                        state.setLow((int) (regU(regS) / regU(regT)));
+                        state.setHigh((int) (regU(regS) % regU(regT)));
                         break;
                     case 0x20: //add
-                        res = (long)reg(regS) + reg(regT);
+                        res = (long) reg(regS) + reg(regT);
                         testOverflow(res);
-                        reg(regD, (int)res);
+                        reg(regD, (int) res);
                         break;
                     case 0x21: //addu
                         reg(regD, reg(regS) + reg(regT));
                         break;
                     case 0x22: // sub
-                        res = (long)reg(regS) - reg(regT);
+                        res = (long) reg(regS) - reg(regT);
                         testOverflow(res);
                         reg(regD, (int) res);
                         break;
@@ -198,7 +206,7 @@ public class Interpreter implements Constants, Registers {
                 }
                 break;
             case 0x01: //RI-type opcodes
-                switch(regT) {
+                switch (regT) {
                     case 0x00: //bltz
                         if (reg(regS) < 0) {
                             advance = imm << 2;
@@ -253,7 +261,7 @@ public class Interpreter implements Constants, Registers {
                 }
                 break;
             case 0x08: //addi
-                long res = (long)reg(regS) + imm;
+                long res = (long) reg(regS) + imm;
                 testOverflow(res);
                 reg(regD, (int) res);
                 break;
@@ -300,10 +308,10 @@ public class Interpreter implements Constants, Registers {
                 //TODO: not implemented
                 break;
             case 0x28: //sb
-                state.set(reg(regS), (byte)reg(regT));
+                state.set(reg(regS), (byte) reg(regT));
                 break;
             case 0x29: //sh
-                state.setShort(reg(regS), (short)reg(regT));
+                state.setShort(reg(regS), (short) reg(regT));
                 break;
             case 0x2a: //swl
                 //Stores upper bytes
@@ -326,17 +334,19 @@ public class Interpreter implements Constants, Registers {
 
     /**
      * Tests whether if a 32-bit integer has overflowed
+     *
      * @param res the number to test
      * @throws ProgramException when an overflow has occurred (ARIH)
      */
     private void testOverflow(long res) throws ProgramException {
-        if (res != ((int)res)) { //Overflow bit is set
+        if (res != ((int) res)) { //Overflow bit is set
             throw new ProgramException(ARIH);
         }
     }
 
     /**
      * Executes a syscall.
+     *
      * @throws ProgramException if a program exception occurs while executing system call
      */
     @SuppressWarnings("MagicNumber")
@@ -351,7 +361,7 @@ public class Interpreter implements Constants, Registers {
                     int addr = reg(REG_A0);
                     int c;
                     while ((c = state.get(addr++)) != 0) {
-                        out.print((char)c);
+                        out.print((char) c);
                     }
                     break;
                 case 5: //read_int
@@ -361,12 +371,12 @@ public class Interpreter implements Constants, Registers {
                 case 8: //read_string
                     addr = reg(REG_A0);
                     int length = reg(REG_A1);
-                    while (length --> 1) {
+                    while (length-- > 1) {
                         c = in.read();
                         if (c == -1) {
                             break;
                         }
-                        state.set(addr++, (byte)c);
+                        state.set(addr++, (byte) c);
                         if (c == '\n') {
                             break;
                         }
@@ -404,6 +414,7 @@ public class Interpreter implements Constants, Registers {
 
     /**
      * Utility method to query a register
+     *
      * @param regind the register index
      * @return the register value
      */
@@ -413,6 +424,7 @@ public class Interpreter implements Constants, Registers {
 
     /**
      * Utility method to query a register in an unsigned integer fom
+     *
      * @param regind the register index
      * @return the register value as an unsigned integer (returned as a long)
      */
@@ -422,8 +434,9 @@ public class Interpreter implements Constants, Registers {
 
     /**
      * Utility method to set a register value
+     *
      * @param regind the register index
-     * @param val the value to set
+     * @param val    the value to set
      */
     private void reg(int regind, int val) {
         state.setRegister(regind, val);

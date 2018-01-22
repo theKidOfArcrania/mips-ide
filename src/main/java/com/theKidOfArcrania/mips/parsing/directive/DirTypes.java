@@ -5,6 +5,7 @@ import java.util.HashMap;
 /**
  * This maintains a list of all the legal directive types in the MIPS language, and it will automatically call all
  * the sub-types and make sure they are initialized.
+ *
  * @author Henry Wang
  */
 public final class DirTypes {
@@ -33,8 +34,9 @@ public final class DirTypes {
      * {@link DirType} to add those directives into our collection of DirTypes. The DirType instance should be
      * completely stateless and immutable in the sense that it would process each directive statement of its type in
      * the same manner.
+     *
      * @param name the name of the directive
-     * @param dir the directive type
+     * @param dir  the directive type
      */
     static void addDirective(String name, DirType dir) {
         dirs.put(name.toUpperCase(), dir);

@@ -12,8 +12,8 @@ import static com.theKidOfArcrania.mips.Constants.SEG_DATA;
  * and plethora of directive types, we will subclass this base abstract class and load them all into
  * the {@link DirTypes} class.
  *
- * @see DirTypes
  * @author Henry Wang
+ * @see DirTypes
  */
 public abstract class DirType {
     private static final String[] SEGMENT_TYPES = {".text", ".data", ".globl", ".ktext", ".kdata"};
@@ -26,8 +26,8 @@ public abstract class DirType {
      * Creates a new directive type with the associated opcode.
      *
      * @param expectedSegment the expected section that this directive type should be in
-     * @param paramArray true if multiple of the last parameter value can be passed.
-     * @param params the parameter types with this directive
+     * @param paramArray      true if multiple of the last parameter value can be passed.
+     * @param params          the parameter types with this directive
      */
     DirType(int expectedSegment, boolean paramArray, ParamType... params) {
         this.expectedSegment = expectedSegment;
@@ -106,6 +106,7 @@ public abstract class DirType {
 
     /**
      * Turns a directive into it's data bytes. This will NEVER return a null array
+     *
      * @param dir the directive statement to write.
      * @return the binary form of this directive. This will return an empty array by default
      */
@@ -115,6 +116,7 @@ public abstract class DirType {
 
     /**
      * Checks whether the current segment matches our expected segment type
+     *
      * @param curSegment the current segment
      * @return true if check is successful, false if check failed
      */

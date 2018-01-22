@@ -14,8 +14,9 @@ import static java.util.Arrays.copyOf;
  *   .ascii str
  *   .asciiz str
  * </pre>
- *
+ * <p>
  * Where the <code>asciiz</code> form appends a null-terminating character to the string value.
+ *
  * @author Henry Wang
  */
 public class StringDataDirType extends DirType {
@@ -32,6 +33,7 @@ public class StringDataDirType extends DirType {
 
     /**
      * Constructs a string-data directive-type
+     *
      * @param nullTerminate true to null-terminate the string, false to ignore null-terminator
      */
     private StringDataDirType(boolean nullTerminate) {

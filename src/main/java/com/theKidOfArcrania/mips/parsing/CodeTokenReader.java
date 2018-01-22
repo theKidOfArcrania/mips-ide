@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 import static com.theKidOfArcrania.mips.parsing.Range.characterRange;
 import static com.theKidOfArcrania.mips.parsing.Range.tokenRange;
 import static com.theKidOfArcrania.mips.parsing.TokenType.*;
-import static com.theKidOfArcrania.mips.runner.Registers.*;
 import static com.theKidOfArcrania.mips.util.FallibleFunction.tryOptional;
 import static java.lang.Character.isJavaIdentifierStart;
 import static java.lang.Character.isWhitespace;
@@ -618,7 +617,7 @@ public class CodeTokenReader implements Constants {
         parseRegister();
         token = tmp;
         if (tokenVal != null) {
-            tokenVal = new RegIndirect(offset, (Integer)tokenVal);
+            tokenVal = new RegIndirect(offset, (Integer) tokenVal);
         }
 
         tokenType = TokenType.INDIRECT;
@@ -677,81 +676,93 @@ public class CodeTokenReader implements Constants {
      * codes will be parsed correctly. If at any point the provided string token is malformed, this will log an error
      * and return a null string.
      */
-    private void parseStringToken()
-    {
+    private void parseStringToken() {
         tokenStartIndex = colNum;
-        if (line.charAt(colNum) != '"')
+        if (line.charAt(colNum) != '"') {
             throw new IllegalStateException("Not a string token.");
+        }
 
         StringBuilder ret = new StringBuilder(line.length() - colNum);
         String errorMsg = null;
         boolean quoted = false;
         boolean escaped = false;
-        mainLoop: while (++colNum < line.length())
-        {
+        mainLoop:
+        while (++colNum < line.length()) {
             char c = line.charAt(colNum);
-            if (escaped)
-            {
+            if (escaped) {
                 int charSize = 4;
                 escaped = false;
-                switch (c)
-                {
-                    case '"': ret.append('"'); break;
-                    case '\'': ret.append('\''); break;
-                    case '\\': ret.append('\\'); break;
-                    case '0': ret.append('\000'); break;
-                    case 'n': ret.append('\n'); break;
-                    case 'r': ret.append('\r'); break;
-                    case 't': ret.append('\t'); break;
+                switch (c) {
+                    case '"':
+                        ret.append('"');
+                        break;
+                    case '\'':
+                        ret.append('\'');
+                        break;
+                    case '\\':
+                        ret.append('\\');
+                        break;
+                    case '0':
+                        ret.append('\000');
+                        break;
+                    case 'n':
+                        ret.append('\n');
+                        break;
+                    case 'r':
+                        ret.append('\r');
+                        break;
+                    case 't':
+                        ret.append('\t');
+                        break;
                     case 'x':
                         charSize = 2;
                         //fall-through
                     case 'u':
                         if (line.length() - colNum - 1 < charSize) {
-                            if (errorMsg == null)
+                            if (errorMsg == null) {
                                 errorMsg = "Invalid hexadecimal.";
+                            }
                             continue mainLoop;
                         }
                         String point = line.substring(colNum + 1, colNum + 1 + charSize).toUpperCase();
-                        for (char hex : point.toCharArray())
-                        {
+                        for (char hex : point.toCharArray()) {
                             if (!Character.isLetterOrDigit(hex) || hex > 'F') {
-                                if (errorMsg == null)
+                                if (errorMsg == null) {
                                     errorMsg = "Invalid hexadecimal.";
+                                }
                                 continue mainLoop;
                             }
                         }
-                        ret.append((char)Integer.parseInt(point, HEX_RADIX));
+                        ret.append((char) Integer.parseInt(point, HEX_RADIX));
                         colNum += charSize;
                         break;
                     default:
-                        if (errorMsg == null)
+                        if (errorMsg == null) {
                             errorMsg = "Invalid escape code.";
+                        }
                 }
-            }
-            else if (c == '"')
-            {
+            } else if (c == '"') {
                 quoted = true;
                 colNum++;
                 break;
-            }
-            else if (c == '\\')
+            } else if (c == '\\') {
                 escaped = true;
-            else
+            } else {
                 ret.append(c);
+            }
         }
-        if (escaped)
+        if (escaped) {
             errorMsg = "Unexpected end of input: open escape.";
-        else if (!quoted)
+        } else if (!quoted) {
             errorMsg = "Unexpected end of input: no end of quote.";
+        }
 
         tokenEndIndex = colNum;
         tokenType = TokenType.STRING;
         token = line.substring(tokenStartIndex, tokenEndIndex);
-        if (errorMsg == null)
+        if (errorMsg == null) {
             tokenVal = ret.toString();
-        else
-        {
+        } else {
             tokenError = true;
             error(errorMsg, tokenRange(lineNum, tokenStartIndex, colNum));
             tokenVal = null;

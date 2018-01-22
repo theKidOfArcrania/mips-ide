@@ -156,6 +156,7 @@ public enum InstOpcodes {
 
     /**
      * Creates a InstOpcode enum (the inst format will be defaulted to the InstSpec's inst format)
+     *
      * @param spec     the instruction spec associated with opcode.
      * @param opcode   the opcode/funct/regimm code of this instruction
      * @param regOrder the array representing the slots that the registers will go into
@@ -166,6 +167,7 @@ public enum InstOpcodes {
 
     /**
      * Creates a InstOpcode enum
+     *
      * @param spec     the instruction spec associated with opcode.
      * @param opcode   the opcode/funct/regimm code of this instruction
      * @param format   the explicit instruction format for this instruction
@@ -180,6 +182,7 @@ public enum InstOpcodes {
 
     /**
      * Obtains the instruction name (in all lower case)
+     *
      * @return the instruction name.
      */
     public String getInstName() {

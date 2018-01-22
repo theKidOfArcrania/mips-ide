@@ -71,7 +71,7 @@ public enum BasicParamType implements ParamType {
     INDIRECT("register indirect addressing", TokenType.INDIRECT) {
         @Override
         public boolean checkToken(CodeTokenReader reader) {
-            RegIndirect mem = (RegIndirect)reader.getTokenValue();
+            RegIndirect mem = (RegIndirect) reader.getTokenValue();
             if (mem.getOffset() < Short.MIN_VALUE || mem.getOffset() > Short.MAX_VALUE) {
                 reader.error("Indirect offset out of bounds (" + Short.MIN_VALUE + " to " + Short.MAX_VALUE + ")",
                         reader.getTokenPos());

@@ -4,7 +4,7 @@ import com.theKidOfArcrania.mips.parsing.CodeSymbols;
 import com.theKidOfArcrania.mips.parsing.ErrorLogger;
 import com.theKidOfArcrania.mips.parsing.ParamType;
 
-import static com.theKidOfArcrania.mips.Constants.*;
+import static com.theKidOfArcrania.mips.Constants.SEG_DATA;
 import static com.theKidOfArcrania.mips.parsing.BasicParamType.*;
 import static com.theKidOfArcrania.mips.parsing.directive.DirTypes.addDirective;
 
@@ -16,6 +16,7 @@ import static com.theKidOfArcrania.mips.parsing.directive.DirTypes.addDirective;
  *   .globl sym
  *   .space n
  * </pre>
+ *
  * @author Henry Wang
  */
 public abstract class MiscDirType extends DirType {
@@ -96,8 +97,9 @@ public abstract class MiscDirType extends DirType {
 
     /**
      * Constructs a miscellaneous directive type.
+     *
      * @param expectedSegment the expected section that this directive type should be in
-     * @param params the parameter types with this directive
+     * @param params          the parameter types with this directive
      */
     private MiscDirType(int expectedSegment, ParamType... params) {
         super(expectedSegment, false, params);

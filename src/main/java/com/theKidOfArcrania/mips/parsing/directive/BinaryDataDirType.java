@@ -17,6 +17,7 @@ import static com.theKidOfArcrania.mips.parsing.directive.DirTypes.addDirective;
  *   .word w1,...,wn
  * </pre>
  * They represent 8-bit, 16-bit, and 32-bit signed integers, respectively.
+ *
  * @author Henry Wang
  */
 //TODO: test for more space
@@ -35,8 +36,9 @@ public class BinaryDataDirType extends DirType {
 
     /**
      * Constructs a binary-data directive-type
+     *
      * @param intParam the integer parameter type
-     * @param size the byte size of each number
+     * @param size     the byte size of each number
      */
     private BinaryDataDirType(BasicParamType intParam, int size) {
         super(SEG_DATA, true, intParam);
@@ -80,7 +82,7 @@ public class BinaryDataDirType extends DirType {
         for (int i = 0; i < data.length; i++) {
             int val = dir.getIntArgValue(i);
             for (int j = 0; j < size; j++) {
-                data[i] = (byte)val;
+                data[i] = (byte) val;
                 val >>= Byte.SIZE;
             }
         }

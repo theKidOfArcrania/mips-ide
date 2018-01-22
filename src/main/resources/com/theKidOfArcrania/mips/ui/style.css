@@ -1,10 +1,7 @@
-.main-dialog
-{
+.main-dialog {
     -fx-background-color: gray;
 }
 
-
-.tooltip
-{
+.tooltip {
     -fx-line-spacing: 3;
 }
